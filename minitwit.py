@@ -20,6 +20,7 @@ from flask import Flask, request, session, url_for, redirect, \
 from werkzeug import check_password_hash, generate_password_hash
 
 
+
 # configuration
 DATABASE = '/tmp/minitwit.db'
 PER_PAGE = 30
