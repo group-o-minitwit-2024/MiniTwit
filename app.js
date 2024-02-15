@@ -9,25 +9,18 @@ const sqlite3 = require('sqlite3').verbose();
 const session = require('express-session');
 var expressLayouts = require('express-ejs-layouts');
 const bcrypt = require('bcrypt');
-const { v4: uuidv4 } = require('uuid');
-
-
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-
-var app = express();
-
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
-
-
+const { connectDB, initDB } = require('./dbUtils');
 
 // Configuration
 const DATABASE = './minitwit.db';
 const PER_PAGE = 30;
 const SECRET_KEY = 'development key';
 
+var app = express();
+
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
 
 // Session
 app.use(session({
@@ -36,12 +29,9 @@ app.use(session({
   saveUninitialized: true
 }));
 
+// Setup
 app.use(expressLayouts);
 app.set('layout', 'layout.ejs');
-
-
-
-
 app.use(logger('dev'));
 app.use(flash());
 app.use(express.json());
@@ -49,46 +39,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-//app.use('/', indexRouter);
-//app.use('/users', usersRouter);
-
-app.locals.user = null;
-
 // Refactor
-const db = new sqlite3.Database(DATABASE)
+const db = connectDB(DATABASE);
+app.locals.user = null; // just forces layout.ejs to render. Should be refactored properly.
 
-db.serialize(() => {
-  //db.run(schemaSQL);
-  db.run(`
-    CREATE TABLE IF NOT EXISTS user (
-        user_id TEXT PRIMARY KEY,
-        username TEXT UNIQUE NOT NULL,
-        email TEXT UNIQUE NOT NULL,
-        pw_hash TEXT NOT NULL
-    )
-`);
-  db.run(`
-    CREATE TABLE IF NOT EXISTS message (
-        message_id INTEGER PRIMARY KEY,
-        author_id TEXT NOT NULL,
-        text TEXT NOT NULL,
-        pub_date INTEGER NOT NULL,
-        flagged INTEGER DEFAULT 0,
-        FOREIGN KEY (author_id) REFERENCES user(user_id)
-    )
-`);
-  db.run(`
-    CREATE TABLE IF NOT EXISTS follower (
-        who_id TEXT NOT NULL,
-        whom_id TEXT NOT NULL,
-        FOREIGN KEY (who_id) REFERENCES user(user_id),
-        FOREIGN KEY (whom_id) REFERENCES user(user_id),
-        PRIMARY KEY (who_id, whom_id)
-    )
-`);
-
-});
-
+// initDB(DATABASE) // Calling this function deletes the database to start from a scratch, so be sure to specify proper file path
 
 const query = (sql, params = []) => {
   return new Promise((resolve, reject) => {
@@ -123,8 +78,7 @@ const format_datetime = (timestamp) => {
   return new Date(timestamp * 1000).toISOString().replace(/T/, ' ').replace(/\..+/, '');
 };
 
-
-// Add datetimeformat function to locals object
+// Add datetimeformat function to locals object, so it can be called in .ejs views
 app.locals.format_datetime = format_datetime;
 
 
@@ -230,7 +184,7 @@ app.get('/login', (req, res) => {
   if (req.session.user) {
     return res.redirect('/timeline');
   }
-  res.render('login.ejs', { user: req.session.user, error: null,  flashes: req.flash('success') });
+  res.render('login.ejs', { user: req.session.user, error: null, flashes: req.flash('success') });
 });
 
 app.post('/login', async (req, res) => {
@@ -255,7 +209,7 @@ app.post('/login', async (req, res) => {
     // Set user session
     req.session.user = user[0];
     req.session.save();
-    
+
     req.flash('success', 'You were logged in');
     res.redirect('/');
   } catch (error) {
@@ -264,14 +218,11 @@ app.post('/login', async (req, res) => {
   }
 });
 
-app.get('/logout', async (req, res) => {  
+app.get('/logout', async (req, res) => {
   req.flash('success', 'You were logged out');
   delete req.session.user;
   res.redirect('/public');
 });
-
-
-
 
 app.post('/add_message', async (req, res) => {
   // Check if user is authenticated
@@ -300,8 +251,6 @@ app.post('/add_message', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
-
-
 
 app.get('/:username', async (req, res) => {
   try {
@@ -345,7 +294,7 @@ app.get('/:username', async (req, res) => {
       followed: followed,
       user: req.session.user,
       profile_user: profile_user,
-      title: profile_user.username + "'s Timeline", 
+      title: profile_user.username + "'s Timeline",
       flashes: req.flash('success'),
       endpoint: 'user_timeline'
     });
@@ -362,7 +311,7 @@ app.get('/:username/follow', async (req, res) => {
     if (!req.session.user) {
       return res.status(401).send('Unauthorized');
     }
-    
+
     // Get whom_id from the database
     const username = req.params.username;
     const whom_id = await get_user_id(username);
@@ -386,7 +335,7 @@ app.get('/:username/unfollow', async (req, res) => {
     if (!req.session.user) {
       return res.status(401).send('Unauthorized');
     }
-    
+
     // Get whom_id from the database
     const username = req.params.username;
     const whom_id = await get_user_id(username);
@@ -403,10 +352,6 @@ app.get('/:username/unfollow', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
-
-
-
-
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
