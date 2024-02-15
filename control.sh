@@ -6,10 +6,10 @@ if [ $1 = "init" ]; then
         exit 1
     fi
     echo "Putting a database to /tmp/minitwit.db..."
-    python -c"from minitwit import init_db;init_db()"
+    python -c"from minitwit import init_db;init_db()" 
 elif [ $1 = "start" ]; then
     echo "Starting minitwit..."
-    nohup `which python` minitwit.py > /tmp/out.log 2>&1 &
+    DEBUG=minitwit-2:* npm start
 elif [ $1 = "stop" ]; then
     echo "Stopping minitwit..."
     pkill -f minitwit

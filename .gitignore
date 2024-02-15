@@ -1,2 +1,6 @@
 .venv/
 __pycache__/
+
+# Node Project files to ignore
+bin/
+node_modules/
