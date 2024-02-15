@@ -6,7 +6,7 @@ if [ $1 = "init" ]; then
         exit 1
     fi
     echo "Putting a database to /tmp/minitwit.db..."
-    python -c"from minitwit import init_db;init_db()" 
+    node -e "require('./dbUtils').initDB('/tmp/minitwit.db');"
 elif [ $1 = "start" ]; then
     echo "Starting minitwit..."
     DEBUG=minitwit-2:* npm start
