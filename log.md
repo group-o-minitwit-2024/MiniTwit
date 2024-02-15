@@ -11,6 +11,7 @@ Refactor:
 * refactored minitwit.py to app.js
 * refactored static html files to .ejs files
 * refactored Flask and Python libraries into similear Node libraries
+' refactored Database functions into dbUtils.js so it can also be run in control.sh
 
 Thoughts & remarks:
 * Choose Node.js as it is a good and simple library for serverside webapps. Has a lot of libraries in extension of npm. Good to integrate to since npm had libraries for flash, hashing passwords, and sqlite3 library. 
