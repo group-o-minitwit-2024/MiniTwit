@@ -25,3 +25,6 @@ Refactor:
 * App won't run
 * Switch to node:slim
 * Works :)
+
+### 16/02 - Author: mkrh
+* Shuffled branch labels. Make refactored version into the main branch, and created seperate branch for the Python-flask version. 
