@@ -19,3 +19,9 @@ Thoughts & remarks:
 ### 16/02 - Author: lakj
 Refactor: 
 * Added the functionality for image gravatar to app.js and timeline.ejs
+
+### 16/02 - Author: mahf, lakj
+* Tried to create basic dockerfile with node:alpine base image
+* App won't run
+* Switch to node:slim
+* Works :)
