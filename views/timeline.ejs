@@ -32,7 +32,7 @@
 
     <ul class="messages">
         <% messages.forEach(function(message) { %>
-            <li><img src="<%= //message.email|gravatar(size=48) %>">
+            <li><img src="<%= gravatarUrl(message.email, 48)   //message.email|gravatar(size=48) %>">
                 <p>
                     <strong><a href="<%="/" + message.username %>">
                             <%= message.username %>

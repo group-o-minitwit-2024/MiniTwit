@@ -9,6 +9,7 @@ const sqlite3 = require('sqlite3').verbose();
 const session = require('express-session');
 var expressLayouts = require('express-ejs-layouts');
 const bcrypt = require('bcrypt');
+const MD5 = require('crypto-js/md5');
 const { connectDB, initDB } = require('./dbUtils');
 
 // Configuration
@@ -78,8 +79,14 @@ const format_datetime = (timestamp) => {
   return new Date(timestamp * 1000).toISOString().replace(/T/, ' ').replace(/\..+/, '');
 };
 
+const gravatarUrl = (email, size = 80) => {
+  const hash = MD5(email.trim().toLowerCase()).toString();
+  return `http://www.gravatar.com/avatar/${hash}?d=identicon&s=${size}`;
+}
+
 // Add datetimeformat function to locals object, so it can be called in .ejs views
 app.locals.format_datetime = format_datetime;
+app.locals.gravatarUrl = gravatarUrl;
 
 
 // Routes
