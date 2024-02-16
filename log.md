@@ -14,4 +14,8 @@ Refactor:
 ' refactored Database functions into dbUtils.js so it can also be run in control.sh
 
 Thoughts & remarks:
-* Choose Node.js as it is a good and simple library for serverside webapps. Has a lot of libraries in extension of npm. Good to integrate to since npm had libraries for flash, hashing passwords, and sqlite3 library. 
+* Choose Node.js as it is a good and simple library for serverside webapps. Has a lot of libraries in extension of npm. Good to integrate to since npm had libraries for flash, hashing passwords, and sqlite3 library.
+
+### 16/02 - Author: lakj
+Refactor: 
+* Added the functionality for image gravatar to app.js and timeline.ejs
