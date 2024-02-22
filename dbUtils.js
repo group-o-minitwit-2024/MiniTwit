@@ -58,25 +58,81 @@ const query = (sql, params = [], one = false) => {
         db.all(sql, params, (err, rows) => {
             if (err) {
                 reject(err);
+                db.close();
             } else {
                 if (rows.length > 0 && one) {
                     // Then return only first result
                     resolve(rows[0]);
+                    db.close();
                 } else {
                     resolve(rows);
+                    db.close();
                 }
             }
         });
     });
 };
 
-const get_user_id = async (username) => {
+const execute = (sql, params = []) => {
+    return new Promise((resolve, reject) => {
+        let db = connect_DB();
+        db.run(sql, params, (err) => {
+            if (err) {
+                reject(err);
+                db.close();
+            } else {
+                resolve();
+                db.close();
+            }
+        });
+    });
+};
+
+async function execute1(sql, params) {
+    const db = connect_DB();
+    db.serialize(() => {
+        db.run(sql, params, async (err) => {
+            if (err) {
+                console.log(err);
+            } 
+        });
+    });
+    db.close();
+}
+
+async function query1(sql, params = [], one=false) {
+    const db = connect_DB();
+    db.serialize(() => {
+        db.all(sql, params, async (err, rows) => {
+            if (err) {
+                console.log(err);
+            } else {
+                if (rows.length > 0 && one) {
+                    // Then return only first result
+                    return rows[0];
+                } else {
+                    return rows;
+                }
+            }
+        });
+    });
+    db.close();
+    
+}
+
+function get_user_id(username) {
+    const user_id = query1("select user_id from user where username = ?", [username], true);
+    return user_id ? user_id.user_id : null;
+}
+
+
+const get_user_id1 = async (username) => {
     const user_id = await query("select user_id from user where username = ?", [username], true)
-    return user_id ? user_id : null;
+    return user_id ? user_id.user_id : null; // taking the actual id out of json
 }
 
 
 
 
 
-module.exports = { connect_DB, init_DB, query, get_user_id, connectDB, initDB };
+module.exports = { execute1, query1, connect_DB, init_DB, query, execute, get_user_id, connectDB, initDB };
