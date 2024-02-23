@@ -43,7 +43,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.locals.user = null; // just forces layout.ejs to render. Should be refactored properly.
 
-// init_DB(); // database path is in dbUtils.js
+//init_DB(); // database path is in dbUtils.js
 
 // const get_user_id = async (username) => {
 //   const rows = await query('SELECT user_id FROM user WHERE username = ?', [username]);
@@ -138,8 +138,8 @@ app.post('/register', async (req, res) => {
     }
 
     // Check if username is already taken
-    const existingUser = await query('SELECT * FROM user WHERE username = ?', [username]);
-    if (existingUser.length > 0) {
+    const existingUser = await get_user_id(username);
+    if (existingUser) {
       return res.render('register.ejs', { error: 'The username is already taken', flashes: req.flash('success') });
     }
 
@@ -149,7 +149,7 @@ app.post('/register', async (req, res) => {
     }
 
     // Insert user into the database
-    const hashedPassword = await bcrypt.hashSync(password, 10);
+    const hashedPassword = bcrypt.hashSync(password, 10);
     //const userId = uuidv4(); // Generate a unique user ID
     await execute('INSERT INTO user (username, email, pw_hash) VALUES (?, ?, ?)',
       [username, email, hashedPassword]);
@@ -175,21 +175,21 @@ app.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
     // Query the user from the database
-    const user = await query('SELECT * FROM user WHERE username = ?', [username]);
+    const user = await query('SELECT * FROM user WHERE username = ?', [username], true);
 
-    if (!user) {
+    if (!user || user.length === 0) {
       return res.render('login.ejs', { error: 'Invalid username', flashes: req.flash('success') });
     }
 
     // Check if password matches
-    const passwordMatch = await bcrypt.compareSync(password, user[0].pw_hash);
+    const passwordMatch = bcrypt.compareSync(password, user.pw_hash);
 
     if (!passwordMatch) {
       return res.render('login.ejs', { error: 'Invalid password', flashes: req.flash('success') });
     }
 
     // Set user session
-    req.session.user = user[0];
+    req.session.user = user;
     req.session.save();
 
     req.flash('success', 'You were logged in');
