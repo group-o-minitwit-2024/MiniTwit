@@ -5,7 +5,7 @@ const express = require('express');
 
 const fs = require('fs');
 const sqlite3 = require('sqlite3').verbose();
-const { init_DB, connect_DB, query, get_user_id, execute } = require('../dbUtils');
+const { init_DB, connect_DB, query, execute } = require('../dbUtils');
 const bcrypt = require('bcrypt');
 
 // Configuration
@@ -17,25 +17,8 @@ const app = express();
 
 
 // Setup
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-
-
-
-//@before_request
-// app.use((req, res, next) => {
-//     req.db = connect_DB(); // Attach database connection to request object
-//     // TODO: add more
-//     next();
-// });
-
-// //@after_request
-// app.use((req, res, next) => {
-//     res.on('finish', () => {
-//         req.db.close();
-//     });
-//     next();
-// });
+app.use(express.json()); // allows json in http request
+app.use(express.urlencoded({ extended: false })); // same
 
 
 function not_req_from_simulator(req) {
@@ -71,7 +54,7 @@ app.get('/latest', async (req, res) => {
     });
 });
 
-// Route to register a user
+// ------- Route to register a user ----------
 app.post('/register', async (req, res) => {
     await update_latest(req);
     const request_data = req.body;
@@ -102,6 +85,7 @@ app.post('/register', async (req, res) => {
 
 });
 
+// ---------- route to get messages by user -------------
 app.get('/msgs/:username', async (req, res) => {
     update_latest(req);
 
@@ -129,26 +113,9 @@ app.get('/msgs/:username', async (req, res) => {
         user: msg.username
     }));
     res.json(filtered_msgs);
-
-
-
-    // query(query, [username, no_msgs], (err, messages) => {
-    //     if (err) {
-    //         console.error('Error querying database:', err);
-    //     }
-
-    //     // Format the messages
-    //     const filtered_msgs = messages.map(msg => ({
-    //         content: msg.text,
-    //         pub_date: msg.pub_date,
-    //         user: msg.username
-    //     }));
-
-    //     // Send the formatted messages as JSON response
-    //     res.json(filtered_msgs);
-    // });
 });
 
+// ------------ Route to post a message by a given user --------------
 app.post('/msgs/:username', async (req, res) => {
     update_latest(req);
 
@@ -166,9 +133,9 @@ app.post('/msgs/:username', async (req, res) => {
 
     await execute(sql, [user.user_id, content, Math.floor(Date.now() / 1000)]);
     res.sendStatus(204);
-});
+})
 
-// Route handler for GET /msgs
+// ------------ Route to get all messages in Database ----------------
 app.get('/msgs', async (req, res) => {
     update_latest(req);
 
@@ -198,6 +165,8 @@ app.get('/msgs', async (req, res) => {
 
 });
 
+
+// -------------- Route to get the followers of a given user ------------------
 app.get('/fllws/:username', async (req, res) => {
     update_latest(req);
 
@@ -228,6 +197,8 @@ app.get('/fllws/:username', async (req, res) => {
     return res.json({ follows: follower_names });
 });
 
+
+// ------------ Route to add/delete a follower --------------
 app.post('/fllws/:username', async (req, res) => {
     update_latest(req);
 
@@ -271,7 +242,6 @@ app.post('/fllws/:username', async (req, res) => {
         return res.status(400).send('Invalid request');
     }
 })
-
 
 
 

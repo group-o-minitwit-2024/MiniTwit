@@ -10,7 +10,7 @@ const session = require('express-session');
 var expressLayouts = require('express-ejs-layouts');
 const bcrypt = require('bcrypt');
 const MD5 = require('crypto-js/md5');
-const { connectDB, initDB } = require('./dbUtils');
+const { connect_DB, init_DB, query, execute, get_user_id} = require('./dbUtils');
 
 // Configuration
 const DATABASE = './minitwit.db';
@@ -40,40 +40,15 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Refactor
-const db = connectDB(DATABASE);
+
 app.locals.user = null; // just forces layout.ejs to render. Should be refactored properly.
 
-// initDB(DATABASE) // Calling this function deletes the database to start from a scratch, so be sure to specify proper file path
+// init_DB(); // database path is in dbUtils.js
 
-const query = (sql, params = []) => {
-  return new Promise((resolve, reject) => {
-    db.all(sql, params, (err, rows) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(rows);
-      }
-    });
-  });
-};
-
-const execute = (sql, params = []) => {
-  return new Promise((resolve, reject) => {
-    db.run(sql, params, function (err) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve({ id: this.lastID });
-      }
-    });
-  });
-};
-
-const get_user_id = async (username) => {
-  const rows = await query('SELECT user_id FROM user WHERE username = ?', [username]);
-  return rows.length ? rows[0].user_id : null;
-};
+// const get_user_id = async (username) => {
+//   const rows = await query('SELECT user_id FROM user WHERE username = ?', [username]);
+//   return rows.length ? rows[0].user_id : null;
+// };
 
 const format_datetime = (timestamp) => {
   return new Date(timestamp * 1000).toISOString().replace(/T/, ' ').replace(/\..+/, '');
@@ -262,17 +237,14 @@ app.post('/add_message', async (req, res) => {
 app.get('/:username', async (req, res) => {
   try {
     // Retrieve the profile user from the database
-    let profile_user = await query(
-      'SELECT * FROM user WHERE username = ?',
-      [req.params.username]
-    );
+    let profile_user = await query("SELECT * FROM user where username = ?", [req.params.username], true);
+    
 
     // If profile_user is not found, return 404
     if (!profile_user) {
       res.status(404).send('User not found');
       return;
     }
-    profile_user = profile_user[0];
     let followed = false;
 
     // Check if the logged-in user follows the profile user
