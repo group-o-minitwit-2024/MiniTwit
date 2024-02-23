@@ -3,41 +3,9 @@ const fs = require('fs');
 
 const SCHEMA_FILE_PATH = 'schema.sql';
 
-function connectDB(database_file_path) {
-    return new sqlite3.Database(database_file_path);
-}
-
-function initDB(database_file_path) {
-    const db = connectDB(database_file_path);
-    // Read the schema file
-    const schema = fs.readFileSync(SCHEMA_FILE_PATH, 'utf-8');
-
-    // Execute the schema script
-    db.serialize(() => {
-        db.exec(schema, (err) => {
-            if (err) {
-                console.error('Error executing schema:', err.message);
-            } else {
-                console.log('Database tables deleted and created successfully.');
-            }
-        });
-    });
-
-    // Close the database connection
-    db.close((err) => {
-        if (err) {
-            console.error('Error closing database:', err.message);
-        }
-    });
-}
-
-
-
-// ------------------------ REFACTORED VERSION ----------------------
-
 // Function to connect to the database
 function connect_DB() {
-    return new sqlite3.Database("/tmp/minitwit.db");
+    return new sqlite3.Database("./minitwit.db"); // put either /tmp/minitwit.db or ./minitwit.db to run temporary db or db saved from flask app
 }
 
 // Function to initialize the database tables
@@ -52,6 +20,7 @@ function init_DB() {
     }
 }
 
+// Function to query data from database
 const query = (sql, params = [], one = false) => {
     return new Promise((resolve, reject) => {
         let db = connect_DB();
@@ -73,6 +42,7 @@ const query = (sql, params = [], one = false) => {
     });
 };
 
+// Function to execute/add data to the database
 const execute = (sql, params = []) => {
     return new Promise((resolve, reject) => {
         let db = connect_DB();
@@ -88,51 +58,11 @@ const execute = (sql, params = []) => {
     });
 };
 
-async function execute1(sql, params) {
-    const db = connect_DB();
-    db.serialize(() => {
-        db.run(sql, params, async (err) => {
-            if (err) {
-                console.log(err);
-            } 
-        });
-    });
-    db.close();
-}
-
-async function query1(sql, params = [], one=false) {
-    const db = connect_DB();
-    db.serialize(() => {
-        db.all(sql, params, async (err, rows) => {
-            if (err) {
-                console.log(err);
-            } else {
-                if (rows.length > 0 && one) {
-                    // Then return only first result
-                    return rows[0];
-                } else {
-                    return rows;
-                }
-            }
-        });
-    });
-    db.close();
-    
-}
-
-function get_user_id(username) {
-    const user_id = query1("select user_id from user where username = ?", [username], true);
-    return user_id ? user_id.user_id : null;
-}
+const get_user_id = async (username) => {
+    const user = await query('SELECT user_id FROM user WHERE username = ?', [username], true);
+    return user ? user.user_id : null;
+  };
+  
 
 
-const get_user_id1 = async (username) => {
-    const user_id = await query("select user_id from user where username = ?", [username], true)
-    return user_id ? user_id.user_id : null; // taking the actual id out of json
-}
-
-
-
-
-
-module.exports = { execute1, query1, connect_DB, init_DB, query, execute, get_user_id, connectDB, initDB };
+module.exports = { connect_DB, init_DB, query, execute, get_user_id };
