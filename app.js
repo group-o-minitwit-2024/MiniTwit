@@ -137,15 +137,15 @@ app.post('/register', async (req, res) => {
       return res.render('register.ejs', { error: 'The two passwords do not match', flashes: req.flash('success') });
     }
 
+    // Check if email is valid
+    if (!email.includes('@')) {
+      return res.render('register.ejs', { error: 'You have to enter a valid email address', flashes: req.flash('success') });
+    }
+
     // Check if username is already taken
     const existingUser = await get_user_id(username);
     if (existingUser) {
       return res.render('register.ejs', { error: 'The username is already taken', flashes: req.flash('success') });
-    }
-
-    // Check if email is valid
-    if (!email.includes('@')) {
-      return res.render('register.ejs', { error: 'You have to enter a valid email address', flashes: req.flash('success') });
     }
 
     // Insert user into the database

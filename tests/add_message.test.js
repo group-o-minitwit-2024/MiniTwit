@@ -8,13 +8,11 @@ const { response } = require('../app');
 
 let agent;
 
-beforeEach((done) => {
-    init_DB();
-    agent = request.agent(app);
-    done();
-});
-
 describe('Endpoint /add_message', () => {
+    before(function () {
+        agent = request.agent(app);
+        init_DB();
+    })
     it('should succesfully add a message', async () => {
         const register_response = await agent
             .post('/register')

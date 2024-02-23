@@ -1,19 +1,20 @@
 const request = require('supertest');
 const assert = require('assert');
 const app = require('../app');
-const { connectDB, initDB } = require('../dbUtils');
+const { init_DB } = require('../dbUtils');
 const { response } = require('../app');
 
-// Setup Express app before each test and reset database
-const DATABASE = '/tmp/minitwit.db';
+
+
 let agent;
-beforeEach((done) => {
-    // initDB(DATABASE);
-    agent = request.agent(app);
-    done();
-});
+
 
 describe('Endpoint /register', () => {
+    before(function () {
+        // Setup Express app before each test and reset database
+        agent = request.agent(app);
+        init_DB();
+    })
     it('should register a user', async () => {
         const response = await agent
             .post('/register')
@@ -22,8 +23,10 @@ describe('Endpoint /register', () => {
                 password: 'default',
                 password2: 'default',
                 email: 'user1@example.com'
-            });
+            })
+            .redirects(1);
         
+        assert(response.text.includes("You were successfully registered and can login now"), "Expected success message not found in the response")
         // add assert
     });
 
