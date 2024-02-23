@@ -33,7 +33,7 @@ function not_req_from_simulator(req) {
 async function update_latest(request) {
     const parsed_command_id = request.query.latest;
     if (parsed_command_id !== -1) {
-        fs.writeFile("./latest_processed_sim_action_id.txt", parsed_command_id.toString(), (err) => {
+        fs.writeFile("./API/latest_processed_sim_action_id.txt", parsed_command_id.toString(), (err) => {
             if (err) {
                 console.error('Error writing file:', err);
             }
@@ -45,7 +45,7 @@ async function update_latest(request) {
 
 // Get the latest value
 app.get('/latest', async (req, res) => {
-    fs.readFile('./latest_processed_sim_action_id.txt', 'utf8', (err, content) => {
+    fs.readFile('./API/latest_processed_sim_action_id.txt', 'utf8', (err, content) => {
         if (err) {
             res.json({ latest: -1 });
         } else {

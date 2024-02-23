@@ -28,3 +28,10 @@ Refactor:
 
 ### 16/02 - Author: mkrh
 * Shuffled branch labels. Make refactored version into the main branch, and created seperate branch for the Python-flask version. 
+
+### 22/02 - Author: lakj
+* Refactored minitwit_sim_api.py into a Express api.
+* Ran minitwit_sim_api_test.py and minitwit_simulator.py against refactored api. Result: Passed
+
+### 23/02 - Author: lakj 
+* Small Cleanup on dbUtils and API folder.

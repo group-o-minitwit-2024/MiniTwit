@@ -5,7 +5,7 @@ const SCHEMA_FILE_PATH = 'schema.sql';
 
 // Function to connect to the database
 function connect_DB() {
-    return new sqlite3.Database("./minitwit.db"); // put either /tmp/minitwit.db or ./minitwit.db to run temporary db or db saved from flask app
+    return new sqlite3.Database("/tmp/minitwit.db"); // put either /tmp/minitwit.db or ./minitwit.db to run temporary db or db saved from flask app
 }
 
 // Function to initialize the database tables
