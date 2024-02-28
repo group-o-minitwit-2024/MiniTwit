@@ -9,6 +9,12 @@ const { response } = require('../app');
 let agent;
 
 describe('Timeline', () => {
+    // messages to post on various accounts
+    const message1 = 'Hello mom 👋';
+    const message2 = 'Hello dad 👋';
+    const message3 = 'Hi there';
+    const message4 = 'Message123';
+
     before(async function () {
         agent = request.agent(app);
         init_DB();
@@ -35,79 +41,62 @@ describe('Timeline', () => {
 
         // login to Jeff, post messages, and logout
         await agent.post('/login').send({username: 'Jeff', password: 'default'});
-        await agent.post('/add_message').send({text: 'Hello mom 👋'});
-        await agent.post('/add_message').send({text: 'Hello dad 👋'});
+        await agent.post('/add_message').send({text: message1});
+        await agent.post('/add_message').send({text: message2});
         await agent.get('/logout');
 
         // repeat for mom
         await agent.post('/login').send({username: 'mom', password: 'default'});
-        await agent.post('/add_message').send({text: 'Hi there'});
+        await agent.post('/add_message').send({text: message3});
         await agent.get('/logout');
 
         // repeat for dad
         await agent.post('/login').send({username: 'dad', password: 'default'});
-        await agent.post('/add_message').send({text: 'Message123'});
+        await agent.post('/add_message').send({text: message4});
         await agent.get('/logout');
     });
 
-    describe('Public', () => {
-        it('should contain messages', async () => {
-            const response = await agent
-                .get('/public');
+    it('should contain messages', async () => {
+        const response = await agent
+            .get('/public');
 
-            const message1 = 'Hello mom 👋';
-            const message2 = 'Hello dad 👋';
-            const message3 = 'Hi there';
-            const message4 = 'Message123';
-            assert(response.text.includes(message1), 'Expected ' + message1 + ' not found in the response');
-            assert(response.text.includes(message2), 'Expected ' + message2 + ' not found in the response');
-            assert(response.text.includes(message3), 'Expected ' + message3 + ' not found in the response');
-            assert(response.text.includes(message4), 'Expected ' + message4 + ' not found in the response');
-        });
+        assert(response.text.includes(message1), 'Expected \'' + message1 + '\' not found in the response');
+        assert(response.text.includes(message2), 'Expected \'' + message2 + '\' not found in the response');
+        assert(response.text.includes(message3), 'Expected \'' + message3 + '\' not found in the response');
+        assert(response.text.includes(message4), 'Expected \'' + message4 + '\' not found in the response');
+    });
 
+    it('should only contain Jeff\'s message on Jeff\'s timeline', async () => {
+        const response = await agent
+            .get('/Jeff');
+        
+        assert(response.text.includes(message1), 'Expected \'' + message1 + '\' not found in the response');
+        assert(response.text.includes(message2), 'Expected \'' + message2 + '\' not found in the response');
+        assert(!response.text.includes(message3), 'Expected \'' + message3 + '\' not found in the response');
+        assert(!response.text.includes(message4), 'Expected \'' + message4 + '\' not found in the response');
+    });
+
+    it('should only contain Jeff message on Jeff\'s timeline', async () => {
+        const response = await agent
+            .get('/Jeff');
+        
+        assert(response.text.includes(message1), 'Expected \'' + message1 + '\' not found in the response');
+        assert(response.text.includes(message2), 'Expected \'' + message2 + '\' not found in the response');
+        assert(!response.text.includes(message3), 'Expected \'' + message3 + '\' not found in the response');
+        assert(!response.text.includes(message4), 'Expected \'' + message4 + '\' not found in the response');
+    });
+
+    it('should display mom\'s messages on Jeff\'s timeline when followed', async () => {
+        await agent.post('/login').send({username: 'Jeff', password: 'default'});
+        const follow = await agent.get('/mom/follow');
+        const followRedirect = await agent.get(follow.headers.location); // get redirected request
+        const followMessage = 'You are now following &#34;mom&#34;';
+        assert(followRedirect.text.includes(followMessage), 'Expected \'' + followMessage + '\' not found in the response');
+
+        const response = await agent.get('/');
+        assert(response.text.includes(message1), 'Expected \'' + message1 + '\' not found in the response');
+        assert(response.text.includes(message2), 'Expected \'' + message2 + '\' not found in the response');
+        assert(response.text.includes(message3), 'Expected \'' + message3 + '\' not found in the response');
+        assert(!response.text.includes(message4), 'Expected \'' + message4 + '\' not found in the response');
     });
 });
-
-
-/*
-
-    def test_timelines(self):
-        """Make sure that timelines work"""
-        self.register_and_login('foo', 'default')
-        self.add_message('the message by foo')
-        self.logout()
-        self.register_and_login('bar', 'default')
-        self.add_message('the message by bar')
-        rv = self.app.get('/public')
-        assert 'the message by foo' in rv.data.decode('utf-8')
-        assert 'the message by bar' in rv.data.decode('utf-8')
-
-        # bar's timeline should just show bar's message
-        rv = self.app.get('/')
-        assert 'the message by foo' not in rv.data.decode('utf-8')
-        assert 'the message by bar' in rv.data.decode('utf-8')
-
-        # now let's follow foo
-        rv = self.app.get('/foo/follow', follow_redirects=True)
-        assert 'You are now following &#34;foo&#34;' in rv.data.decode('utf-8')
-
-        # we should now see foo's message
-        rv = self.app.get('/')
-        assert 'the message by foo' in rv.data.decode('utf-8')
-        assert 'the message by bar' in rv.data.decode('utf-8')
-
-        # but on the user's page we only want the user's message
-        rv = self.app.get('/bar')
-        assert 'the message by foo' not in rv.data.decode('utf-8')
-        assert 'the message by bar' in rv.data.decode('utf-8')
-        rv = self.app.get('/foo')
-        assert 'the message by foo' in rv.data.decode('utf-8')
-        assert 'the message by bar' not in rv.data.decode('utf-8')
-
-        # now unfollow and check if that worked
-        rv = self.app.get('/foo/unfollow', follow_redirects=True)
-        assert 'You are no longer following &#34;foo&#34;' in rv.data.decode('utf-8')
-        rv = self.app.get('/')
-        assert 'the message by foo' not in rv.data.decode('utf-8')
-        assert 'the message by bar' in rv.data.decode('utf-8')
-        */

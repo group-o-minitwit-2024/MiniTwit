@@ -62,8 +62,6 @@ describe('Endpoint /login', () => {
                 username: 'notAUser',
                 password: 'Default'
             });
-        
-        //console.log('asdasdaiojdaoisd' + response.text);
 
         const errorMessage = 'Invalid username';
         assert(response.text.includes(errorMessage), 'Expected error message not found in the response');
