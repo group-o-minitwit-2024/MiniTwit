@@ -3,9 +3,9 @@ run-name: ${{ github.actor }} automated testing 🛠️
 
 on:
   push:
-    branches: [ "github_actions" ]  # [ "main" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "github_actions" ]  # [ "main" ]
+    branches: [ "main" ]
 
 jobs:
   build:
