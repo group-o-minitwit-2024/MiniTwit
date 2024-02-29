@@ -11,6 +11,19 @@ const bcrypt = require('bcrypt');
 // Configuration
 const DEBUG = true;
 
+
+fs.unlink("/tmp/minitwit.db", (err) => {
+    if (err && err.code !== 'ENOENT') {
+        console.error('Error deleting database:', err);
+    }
+});
+fs.unlink("./API/latest_processed_sim_action_id.txt", (err) => {
+    if (err && err.code !== 'ENOENT') {
+        console.error('Error deleting latest processed file:', err);
+    }
+});
+init_DB();
+
 // Create our little application :)
 const app = express();
 
