@@ -43,7 +43,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.locals.user = null; // just forces layout.ejs to render. Should be refactored properly.
 
-//init_DB(); // database path is in dbUtils.js
+init_DB(); // database path is in dbUtils.js
 
 // const get_user_id = async (username) => {
 //   const rows = await query('SELECT user_id FROM user WHERE username = ?', [username]);
