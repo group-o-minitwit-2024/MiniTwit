@@ -100,7 +100,7 @@ app.post('/register', async (req, res) => {
 
 // ---------- route to get messages by user -------------
 app.get('/msgs/:username', async (req, res) => {
-    update_latest(req);
+    await update_latest(req);
 
     const not_from_sim_response = not_req_from_simulator(req);
     if (not_from_sim_response) {
@@ -130,7 +130,7 @@ app.get('/msgs/:username', async (req, res) => {
 
 // ------------ Route to post a message by a given user --------------
 app.post('/msgs/:username', async (req, res) => {
-    update_latest(req);
+    await update_latest(req);
 
     const not_from_sim_response = not_req_from_simulator(req);
     if (not_from_sim_response) {
@@ -150,7 +150,7 @@ app.post('/msgs/:username', async (req, res) => {
 
 // ------------ Route to get all messages in Database ----------------
 app.get('/msgs', async (req, res) => {
-    update_latest(req);
+    await update_latest(req);
 
     const not_from_sim_response = not_req_from_simulator(req);
     if (not_from_sim_response) {
@@ -181,7 +181,7 @@ app.get('/msgs', async (req, res) => {
 
 // -------------- Route to get the followers of a given user ------------------
 app.get('/fllws/:username', async (req, res) => {
-    update_latest(req);
+    await update_latest(req);
 
     const not_from_sim_response = not_req_from_simulator(req);
     if (not_from_sim_response) {
@@ -213,7 +213,7 @@ app.get('/fllws/:username', async (req, res) => {
 
 // ------------ Route to add/delete a follower --------------
 app.post('/fllws/:username', async (req, res) => {
-    update_latest(req);
+    await update_latest(req);
 
     const not_from_sim_response = not_req_from_simulator(req);
     if (not_from_sim_response) {
