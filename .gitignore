@@ -6,3 +6,6 @@ node_modules/
 
 # Vagrant to ignore
 .vagrant/
+
+# Txt file with IP where app has been deployed
+db_ip.txt

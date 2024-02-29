@@ -29,14 +29,17 @@ Refactor:
 ### 16/02 - Author: mkrh
 * Shuffled branch labels. Make refactored version into the main branch, and created seperate branch for the Python-flask version. 
 
-
-
 ### 19/02 - Author: mahf
 * Setup testing environment
 * Created new basic tests
 * They don't work
 * Fix by making tests async
 * To be continued
+
+### 20/02 - Author: ezpa
+* Setting up Digital Ocean account 
+* Setting up GitHub student privileges, it will need some days to be granted. 
+* Modifying Vagrantfile for remote deployment
 
 ### 21/02 - Author: mahf
 * Continue creating tests
@@ -82,3 +85,9 @@ Error: cannot POST /login (500)
 
 ### 29/02 - Author: jkau
 * Refactored api tests to ExpressJS 
+
+### 29/02 - Author: ezpa
+* Modifying Vagrantfile to create only one VM and run the app 
+* Adding igonre files to Vagrantfile to do not comit modules (so BM can install the proper packages)
+* Adding ignore txt Ip output to .ignore in github
+
