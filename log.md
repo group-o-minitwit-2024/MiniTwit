@@ -79,3 +79,6 @@ Error: cannot POST /login (500)
 ### 23/02 - Author: lakj 
 * Small Cleanup on dbUtils and API folder.
 * Fix edges casces caught by tests.
+
+### 29/02 - Author: jkau
+* Refactored api tests to ExpressJS 
