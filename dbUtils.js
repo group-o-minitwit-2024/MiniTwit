@@ -1,5 +1,5 @@
 const sqlite3 = require('sqlite3').verbose();
-const fs = require('fs');
+const fs = require('fs').promises;
 
 const SCHEMA_FILE_PATH = 'schema.sql';
 
@@ -9,12 +9,21 @@ function connect_DB() {
 }
 
 // Function to initialize the database tables
-function init_DB() {
+async function init_DB() {
     try {
         let db = connect_DB();
-        const schema = fs.readFileSync('schema.sql', 'utf-8');
-        db.exec(schema);
-        db.close();
+        const schema = await fs.readFile(SCHEMA_FILE_PATH, 'utf-8');
+
+        await new Promise((resolve, reject) => {
+            db.exec(schema, (error) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve();
+                }
+                db.close();
+            });
+        });
     } catch (error) {
         console.log(error);
     }
