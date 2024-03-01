@@ -9,20 +9,20 @@ const { response } = require('../app');
 let agent;
 
 describe('Endpoint /login', () => {
-    before(function () {
+    before(async function () {
         agent = request.agent(app);
-        init_DB();
+        await init_DB();
+        await agent
+            .post('/register')
+            .send({
+                username: 'someUser',
+                password: 'default',
+                password2: 'default',
+                email: 'someUser@email.com'
+            });
     });
 
     it('should successfully login a registered user', async () => { 
-        const register_response = await agent
-        .post('/register')
-        .send({
-            username: 'someUser',
-            password: 'default',
-            password2: 'default',
-            email: 'someUser@email.com'
-        });
         // attempt login that should be successful
         const response = await agent
             .post('/login')
@@ -35,15 +35,6 @@ describe('Endpoint /login', () => {
     });
 
     it('should fail due to wrong password', async () => {
-        const register_response = await agent
-        .post('/register')
-        .send({
-            username: 'someUser',
-            password: 'default',
-            password2: 'default',
-            email: 'someUser@email.com'
-        });
-
         const response = await agent
             .post('/login')
             .send({
