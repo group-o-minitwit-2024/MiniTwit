@@ -1,6 +1,17 @@
 services:
+
   minitwit:
     container_name: MiniTwit
     build: ./app
-    ports: [5000:5000]
-  
+    ports: 
+      - 5000:5000
+    
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:latest #v2.1.0
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
