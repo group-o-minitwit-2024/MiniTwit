@@ -17,7 +17,7 @@ describe('Timeline', () => {
 
     before(async function () {
         agent = request.agent(app);
-        init_DB();
+        await init_DB();
 
         // register dummy accounts
         await agent.post('/register').send({
