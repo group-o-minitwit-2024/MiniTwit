@@ -5,7 +5,7 @@ const express = require('express');
 
 const fs = require('fs');
 const sqlite3 = require('sqlite3').verbose();
-const { init_DB, connect_DB, query, execute } = require('../dbUtils');
+const { init_DB, connect_DB, query, execute } = require('../utils/dbUtils');
 const bcrypt = require('bcrypt');
 
 // Configuration

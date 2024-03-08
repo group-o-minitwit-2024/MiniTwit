@@ -2,17 +2,18 @@ services:
 
   minitwit:
     container_name: MiniTwit
-    build: ./app
+    build: ./
     ports: 
       - 5000:5000
 
   minitwit-api:
-    container_name: MiniTwit-API
+    container_name: API
     build: 
-      context: ./app
+      context: ./
       dockerfile: Dockerfile.api
     ports:
       - 5001:5001
+
     
   prometheus:
     container_name: prometheus
@@ -29,3 +30,4 @@ services:
     image: grafana/grafana-oss:latest
     ports:
       - 3000:3000
+

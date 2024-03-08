@@ -10,10 +10,10 @@ const session = require('express-session');
 var expressLayouts = require('express-ejs-layouts');
 const bcrypt = require('bcrypt');
 const MD5 = require('crypto-js/md5');
-const { connect_DB, init_DB, query, execute, get_user_id} = require('./dbUtils');
+const { connect_DB, init_DB, query, execute, get_user_id} = require('./utils/dbUtils');
 
 // Prometheus tracking
-const { prometheus, customMetric } = require('./prometheus/prometheus');
+const { prometheus, customMetric } = require('./utils/prometheus');
 
 // Configuration
 const DATABASE = './minitwit.db';
