@@ -10,11 +10,12 @@ let agent;
 
 
 describe('Endpoint /register', () => {
-    before(function () {
+    beforeEach(async function () {
         // Setup Express app before each test and reset database
         agent = request.agent(app);
-        init_DB();
-    })
+        await init_DB();
+    });
+    
     it('should register a user', async () => {
         const response = await agent
             .post('/register')

@@ -9,11 +9,10 @@ const { response } = require('../app');
 let agent;
 
 describe('Endpoint /add_message', () => {
-    before(function () {
+    before(async function () {
         agent = request.agent(app);
-        init_DB();
-    })
-    it('should succesfully add a message', async () => {
+        await init_DB();
+
         const register_response = await agent
             .post('/register')
             .send({
@@ -29,7 +28,9 @@ describe('Endpoint /add_message', () => {
                 username: 'test',
                 password: 'test'
             });
+    });
 
+    it('should succesfully add a message', async () => {
         const response = await agent
             .post('/add_message')
             .send({
