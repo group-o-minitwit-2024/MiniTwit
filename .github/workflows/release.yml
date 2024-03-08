@@ -1,6 +1,7 @@
 name: Weekly Release
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: '0 15 * * 5'
 
@@ -10,7 +11,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Set up GitHub CLI
       uses: actions/setup-gh@v0
@@ -20,7 +21,8 @@ jobs:
     - name: Create Release
       run: |
         gh release create v${{ github.run_number }} \
-          --title "Weekly Release"
+          --title "Weekly Release \
+          --generate-notes"
 
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
