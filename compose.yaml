@@ -1,0 +1,31 @@
+services:
+
+  minitwit:
+    container_name: MiniTwit
+    build: ./app
+    ports: 
+      - 5000:5000
+
+  minitwit-api:
+    container_name: MiniTwit-API
+    build: 
+      context: ./app
+      dockerfile: Dockerfile.api
+    ports:
+      - 5001:5001
+    
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:latest #v2.1.0
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana-oss:latest
+    ports:
+      - 3000:3000
