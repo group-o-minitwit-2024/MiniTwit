@@ -13,11 +13,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Set up GitHub CLI
-      uses: actions/setup-gh@v0
-      with:
-        cli-version: '2.x'
-
     - name: Create Release
       run: |
         gh release create v${{ github.run_number }} \
