@@ -91,3 +91,8 @@ Error: cannot POST /login (500)
 * Adding igonre files to Vagrantfile to do not comit modules (so BM can install the proper packages)
 * Adding ignore txt Ip output to .ignore in github
 
+### 29/02 - Author: mkrh
+* Added database service (Postgress) to DigitalOcean.
+    * Created main cluster (main DB) and READ-ONLY node for analyses purposes
+    * psql installed to Digitalocean ubuntu machine. We are ready for data migration, which will be the next step
+
