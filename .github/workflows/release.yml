@@ -1,0 +1,26 @@
+name: Weekly Release
+
+on:
+  schedule:
+    - cron: '0 15 * * 5'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up GitHub CLI
+      uses: actions/setup-gh@v0
+      with:
+        cli-version: '2.x'
+
+    - name: Create Release
+      run: |
+        gh release create v${{ github.run_number }} \
+          --title "Weekly Release"
+
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
