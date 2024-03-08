@@ -12,6 +12,9 @@ const bcrypt = require('bcrypt');
 const MD5 = require('crypto-js/md5');
 const { connect_DB, init_DB, query, execute, get_user_id} = require('./dbUtils');
 
+// Prometheus tracking
+const { prometheus, customMetric } = require('./prometheus/prometheus');
+
 // Configuration
 const DATABASE = './minitwit.db';
 const PER_PAGE = 30;
@@ -99,6 +102,14 @@ app.get('/', async (req, res) => {
   }
 });
 
+
+// Prometheus tracking endpoint
+app.get('/metrics', async (req, res) => {
+  res.set('Content-Type', prometheus.register.contentType);
+  const metrics = await prometheus.register.metrics();
+  res.end(metrics);
+});
+
 app.get('/public', async (req, res) => {
   // Implement your logic here
   try {
@@ -110,6 +121,8 @@ app.get('/public', async (req, res) => {
         ORDER BY message.pub_date DESC
         LIMIT ?
     `, [PER_PAGE]);
+
+    customMetric.inc();
 
     res.render('timeline.ejs', { user: req.session.user, messages, title: "Public Timeline", flashes: req.flash('success'), endpoint: '' });
   } catch (error) {
