@@ -16,8 +16,8 @@ jobs:
     - name: Create Release
       run: |
         gh release create v${{ github.run_number }} \
-          --title "Weekly Release \
-          --generate-notes"
+          --title "Weekly Release" \
+          --generate-notes
 
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
