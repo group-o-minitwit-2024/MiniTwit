@@ -15,7 +15,7 @@ jobs:
 
     - name: Create Release
       run: |
-        gh release create v${{ github.run_number }} \
+        gh release create weekly \
           --title "Weekly Release" \
           --generate-notes
 
