@@ -1,0 +1,29 @@
+name: DigitalOcean Deployment
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Deploy API
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SERVER_IP }}
+        username: ${{ secrets.SERVER_USERNAME }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        script_stop: true
+        command_timeout: 200m
+        script: |
+          cd /MiniTwit
+          git fetch
+          git pull
+          docker-compose build --force-rm --no-cache --compress
+          docker-compose up -d
+
