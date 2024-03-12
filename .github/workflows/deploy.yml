@@ -17,7 +17,7 @@ jobs:
       with:
         host: ${{ secrets.SERVER_IP }}
         username: ${{ secrets.SERVER_USERNAME }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+        password: ${{ secrets.SERVER_PASSWORD }}
         script_stop: true
         command_timeout: 200m
         script: |
