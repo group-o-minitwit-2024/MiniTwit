@@ -9,3 +9,6 @@ node_modules/
 
 # Txt file with IP where app has been deployed
 db_ip.txt
+
+# certificate
+ca-certificate.crt
