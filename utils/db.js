@@ -3,20 +3,13 @@ const { Pool } = require('pg');
 
 // PostgreSQL
 
-const ca_file = fs.readFileSync('ca-certificate.crt');
+const ca_file = fs.readFileSync('utils/ca-certificate.crt');
 const SCHEMA_FILE_PATH = 'schema_postgres.sql';
+const connectionstring_data = fs.readFileSync('utils/db_connectionstring.json', 'utf-8');
+const connectionstring = JSON.parse(connectionstring_data);
+connectionstring.ssl = { ca: ca_file };
 
-const pool = new Pool({
-    user: 'doadmin',
-    password: 'AVNS_p40kyN7M2V_VESi5or3',
-    host: 'db-postgresql-ams3-54941-do-user-15895419-0.c.db.ondigitalocean.com',
-    port: 25060,
-    database: 'defaultdb',
-    sslmode: 'require',
-    ssl: {
-        ca: ca_file
-    }
-});
+const pool = new Pool(connectionstring);
 pool.connect(function (err) {
     if (err) throw err;
     console.log("Connected!");
