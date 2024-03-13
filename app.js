@@ -1,5 +1,6 @@
 var createError = require('http-errors');
 var express = require('express');
+const fs = require('fs');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
@@ -10,7 +11,10 @@ const session = require('express-session');
 var expressLayouts = require('express-ejs-layouts');
 const bcrypt = require('bcrypt');
 const MD5 = require('crypto-js/md5');
-const { connect_DB, init_DB, query, execute, get_user_id} = require('./utils/dbUtils');
+//const { connect_DB, init_DB, query, execute, get_user_id} = require('./utils/dbUtils');
+const { pool, init_DB, query, execute, get_user_id} = require('./utils/db');
+
+
 
 // Prometheus tracking
 const { prometheus, customMetric } = require('./utils/prometheus');
@@ -46,12 +50,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.locals.user = null; // just forces layout.ejs to render. Should be refactored properly.
 
-init_DB(); // database path is in dbUtils.js
-
-// const get_user_id = async (username) => {
-//   const rows = await query('SELECT user_id FROM user WHERE username = ?', [username]);
-//   return rows.length ? rows[0].user_id : null;
-// };
+//init_DB();
 
 const format_datetime = (timestamp) => {
   return new Date(timestamp * 1000).toISOString().replace(/T/, ' ').replace(/\..+/, '');
@@ -67,6 +66,8 @@ app.locals.format_datetime = format_datetime;
 app.locals.gravatarUrl = gravatarUrl;
 
 
+
+
 // Routes
 app.get('/', async (req, res) => {
   // Implement your logic here
@@ -76,7 +77,7 @@ app.get('/', async (req, res) => {
     // Implement your logic here
     let user = null;
     if (req.session && req.session.user) {
-      user = await query('SELECT * FROM user WHERE user_id = ?', [req.session.user.user_id]);
+      user = await query('SELECT * FROM account WHERE user_id = $1', [req.session.user.user_id]);
     }
 
     if (!user) {
@@ -85,14 +86,14 @@ app.get('/', async (req, res) => {
 
     const offset = req.query.offset || 0;
     const messages = await query(`
-        SELECT message.*, user.* FROM message
-        INNER JOIN user ON message.author_id = user.user_id
+        SELECT message.*, account.* FROM message
+        INNER JOIN account ON message.author_id = account.user_id
         WHERE message.flagged = 0 AND (
-            user.user_id = ? OR
-            user.user_id IN (SELECT whom_id FROM follower WHERE who_id = ?)
+            account.user_id = $1 OR
+            account.user_id IN (SELECT whom_id FROM follower WHERE who_id = $2)
         )
         ORDER BY message.pub_date DESC
-        LIMIT ?
+        LIMIT $3
     `, [req.session.user.user_id, req.session.user.user_id, PER_PAGE]);
 
     res.render('timeline.ejs', { user: req.session.user, messages, title: "My Timeline", flashes: req.flash('success'), endpoint: "user_timline" });
@@ -101,7 +102,6 @@ app.get('/', async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-
 
 // Prometheus tracking endpoint
 app.get('/metrics', async (req, res) => {
@@ -115,11 +115,11 @@ app.get('/public', async (req, res) => {
   try {
     // Implement your logic here
     const messages = await query(`
-        SELECT message.*, user.* FROM message
-        INNER JOIN user ON message.author_id = user.user_id
+        SELECT message.*, account.* FROM message
+        INNER JOIN account ON message.author_id = account.user_id
         WHERE message.flagged = 0
         ORDER BY message.pub_date DESC
-        LIMIT ?
+        LIMIT $1
     `, [PER_PAGE]);
 
     customMetric.inc();
@@ -164,7 +164,7 @@ app.post('/register', async (req, res) => {
     // Insert user into the database
     const hashedPassword = bcrypt.hashSync(password, 10);
     //const userId = uuidv4(); // Generate a unique user ID
-    await execute('INSERT INTO user (username, email, pw_hash) VALUES (?, ?, ?)',
+    await execute('INSERT INTO account (username, email, pw_hash) VALUES ($1, $2, $3)',
       [username, email, hashedPassword]);
 
     req.flash('success', 'You were successfully registered and can login now');
@@ -188,7 +188,7 @@ app.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
     // Query the user from the database
-    const user = await query('SELECT * FROM user WHERE username = ?', [username], true);
+    const user = await query('SELECT * FROM account WHERE username = $1', [username], true);
 
     if (!user || user.length === 0) {
       return res.render('login.ejs', { error: 'Invalid username', flashes: req.flash('success') });
@@ -235,7 +235,7 @@ app.post('/add_message', async (req, res) => {
   try {
     // Insert message into the database
     const result = await execute(
-      'INSERT INTO message (author_id, text, pub_date, flagged) VALUES (?, ?, ?, 0)',
+      'INSERT INTO message (author_id, text, pub_date, flagged) VALUES ($1, $2, $3, 0)',
       [req.session.user.user_id, text, Math.floor(Date.now() / 1000)]
     );
 
@@ -250,7 +250,7 @@ app.post('/add_message', async (req, res) => {
 app.get('/:username', async (req, res) => {
   try {
     // Retrieve the profile user from the database
-    let profile_user = await query("SELECT * FROM user where username = ?", [req.params.username], true);
+    let profile_user = await query("SELECT * FROM account where username = $1", [req.params.username], true);
     
 
     // If profile_user is not found, return 404
@@ -263,7 +263,7 @@ app.get('/:username', async (req, res) => {
     // Check if the logged-in user follows the profile user
     if (req.session.user) {
       const follower = await query(
-        'SELECT 1 FROM follower WHERE who_id = ? AND whom_id = ?',
+        'SELECT 1 FROM follower WHERE who_id = $1 AND whom_id = $2',
         [req.session.user.user_id, profile_user.user_id]
       );
 
@@ -272,11 +272,11 @@ app.get('/:username', async (req, res) => {
 
     // Fetch messages for the profile user
     const messages = await query(
-      `SELECT message.*, user.* FROM message JOIN user 
-       ON user.user_id = message.author_id 
-       WHERE user.user_id = ? 
+      `SELECT message.*, account.* FROM message JOIN account 
+       ON account.user_id = message.author_id 
+       WHERE account.user_id = $1 
        ORDER BY message.pub_date DESC 
-       LIMIT ?`,
+       LIMIT $2`,
       [profile_user.user_id, PER_PAGE]
     );
 
@@ -312,7 +312,7 @@ app.get('/:username/follow', async (req, res) => {
     }
 
     // Insert into follower table
-    await execute('insert into follower (who_id, whom_id) values (?, ?)', [req.session.user.user_id, whom_id]);
+    await execute('insert into follower (who_id, whom_id) values ($1, $2)', [req.session.user.user_id, whom_id]);
     req.flash('success', `You are now following "${username}"`);
     res.redirect(`/${username}`);
   } catch (error) {
@@ -336,7 +336,7 @@ app.get('/:username/unfollow', async (req, res) => {
     }
 
     // Delete from follower table
-    await execute('delete from follower where who_id=? and whom_id=?', [req.session.user.user_id, whom_id]);
+    await execute('delete from follower where who_id=$1 and whom_id=$2', [req.session.user.user_id, whom_id]);
     req.flash('success', `You are no longer following "${username}"`);
     res.redirect(`/${username}`);
   } catch (error) {

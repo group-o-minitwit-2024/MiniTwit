@@ -83,6 +83,12 @@ Error: cannot POST /login (500)
 * Small Cleanup on dbUtils and API folder.
 * Fix edges casces caught by tests.
 
+### 29/02 - Author: lakj
+* Created Droplet on DigitalOcean
+* Installed dependencies on Droplet
+* Pulled Gitproject and Deployed APP & API.
+    * Used nginx, pm2 for deployment.
+
 ### 29/02 - Author: jkau
 * Refactored api tests to ExpressJS 
 
@@ -96,3 +102,10 @@ Error: cannot POST /login (500)
     * Created main cluster (main DB) and READ-ONLY node for analyses purposes
     * psql installed to Digitalocean ubuntu machine. We are ready for data migration, which will be the next step
 
+### 12/03 - Author: lakj
+* Connected to Managed Database from DigitalOcean in Application
+
+### 13/03 - Author: lakj
+* Refactored app and api usage of db.js to use remote PostgreSQL hosted on DigitalOcean
+    * Note: table "user" was changed to name "account" since user is a reserved keyword in PostgreSQL
+ 
