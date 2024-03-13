@@ -1,28 +1,19 @@
 var createError = require('http-errors');
 const express = require('express');
-
-
-
 const fs = require('fs');
-const sqlite3 = require('sqlite3').verbose();
-const { init_DB, connect_DB, query, execute } = require('../utils/dbUtils');
+const { pool, init_DB, query, execute } = require('../utils/db');
 const bcrypt = require('bcrypt');
 
 // Configuration
 const DEBUG = true;
 
-
-fs.unlink("/tmp/minitwit.db", (err) => {
-    if (err && err.code !== 'ENOENT') {
-        console.error('Error deleting database:', err);
-    }
-});
 fs.unlink("./API/latest_processed_sim_action_id.txt", (err) => {
     if (err && err.code !== 'ENOENT') {
         console.error('Error deleting latest processed file:', err);
     }
 });
-init_DB();
+
+//init_DB();
 
 // Create our little application :)
 const app = express();
@@ -80,11 +71,8 @@ app.post('/register', async (req, res) => {
     } else if (!request_data.pwd) {
         error = "You have to enter a password";
     } else {
-        // Assuming get_user_id and generate_password_hash functions are implemented elsewhere
-        // Example implementation of inserting user into SQLite database
         const hash_password = bcrypt.hashSync(request_data.pwd, 10)
-        const sql = `INSERT INTO user (username, email, pw_hash) VALUES (?, ?, ?)`;
-        await execute(`INSERT INTO user (username, email, pw_hash) VALUES (?, ?, ?)`, [
+        await execute(`INSERT INTO account (username, email, pw_hash) VALUES ($1, $2, $3)`, [
             request_data.username,
             request_data.email,
             hash_password,
@@ -110,13 +98,13 @@ app.get('/msgs/:username', async (req, res) => {
     const username = req.params.username;
     const no_msgs = parseInt(req.query.no) || 100; // Default to 100 if 'no' parameter is not provided
 
-    const user = await query("SELECT user_id FROM user where username = ?", [username], true);
+    const user = await query("SELECT user_id FROM account where username = $1", [username], true);
 
-    const sql = `SELECT message.*, user.* FROM message JOIN user 
-                ON user.user_id = message.author_id 
-                WHERE user.user_id = ? 
+    const sql = `SELECT message.*, account.* FROM message JOIN account 
+                ON account.user_id = message.author_id 
+                WHERE account.user_id = $1 
                 ORDER BY message.pub_date DESC 
-                LIMIT ?`;
+                LIMIT $2`;
 
 
     const messages = await query(sql, [user.user_id, no_msgs]);
@@ -140,9 +128,9 @@ app.post('/msgs/:username', async (req, res) => {
     const username = req.params.username;
     const { content } = req.body;
 
-    const user = await query("SELECT user_id FROM user where username = ?", [username], true);
+    const user = await query("SELECT user_id FROM account where username = $1", [username], true);
 
-    const sql = `INSERT INTO message (author_id, text, pub_date, flagged) VALUES (?, ?, ?, 0)`;
+    const sql = `INSERT INTO message (author_id, text, pub_date, flagged) VALUES ($1, $2, $3, 0)`;
 
     await execute(sql, [user.user_id, content, Math.floor(Date.now() / 1000)]);
     res.sendStatus(204);
@@ -161,11 +149,11 @@ app.get('/msgs', async (req, res) => {
 
     // Query the database to get messages
     const messages = await query(`
-        SELECT message.*, user.* FROM message
-        INNER JOIN user ON message.author_id = user.user_id
+        SELECT message.*, account.* FROM message
+        INNER JOIN account ON message.author_id = account.user_id
         WHERE message.flagged = 0
         ORDER BY message.pub_date DESC
-        LIMIT ?
+        LIMIT $1
     `, [no_msgs]);
 
     const filtered_msgs = messages.map(msg => ({
@@ -189,7 +177,7 @@ app.get('/fllws/:username', async (req, res) => {
     }
 
     const username = req.params.username;
-    const user = await query("SELECT user_id FROM user where username = ?", [username], true);
+    const user = await query("SELECT user_id FROM account where username = ?", [username], true);
     if (!user) {
         return res.status(404);
     }
@@ -197,11 +185,11 @@ app.get('/fllws/:username', async (req, res) => {
     const no_followers = req.query.no || 100;
 
     const sql = `
-            SELECT user.username
-            FROM user
-            INNER JOIN follower ON follower.whom_id = user.user_id
-            WHERE follower.who_id = ?
-            LIMIT ?`;
+            SELECT account.username
+            FROM account
+            INNER JOIN follower ON follower.whom_id = account.user_id
+            WHERE follower.who_id = $1
+            LIMIT $2`;
 
 
     const followers = await query(sql, [user.user_id, no_followers]);
@@ -221,7 +209,7 @@ app.post('/fllws/:username', async (req, res) => {
     }
 
     const username = req.params.username;
-    const user = await query("SELECT user_id FROM user where username = ?", [username], true);
+    const user = await query("SELECT user_id FROM account where username = $1", [username], true);
     if (!user) {
         return res.status(404);
     }
@@ -230,23 +218,23 @@ app.post('/fllws/:username', async (req, res) => {
 
     // ------------ CASE FOLLOW USER ------------------
     if (follow) {
-        const follows_user = await query("SELECT user_id FROM user where username = ?", [follow], true);
+        const follows_user = await query("SELECT user_id FROM account where username = $1", [follow], true);
         if (!follows_user) {
             return res.status(404).send('User to follow not found');
         }
 
-        const sql = `INSERT INTO follower (who_id, whom_id) VALUES (?, ?)`;
+        const sql = `INSERT INTO follower (who_id, whom_id) VALUES ($1, $2)`;
         await execute(sql, [user.user_id, follows_user.user_id]);
         return res.sendStatus(204);
 
         // ------------ CASE UNFOLLOW USER ------------------
     } else if (unfollow) {
-        const unfollows_user = await query("SELECT user_id FROM user where username = ?", [unfollow], true);
+        const unfollows_user = await query("SELECT user_id FROM account where username = $1", [unfollow], true);
         if (!unfollows_user) {
             return res.status(404).send('User to unfollow not found');
         }
 
-        const sql = `DELETE FROM follower WHERE who_id = ? AND whom_id = ?`;
+        const sql = `DELETE FROM follower WHERE who_id = $1 AND whom_id = $2`;
         await execute(sql, [user.user_id, unfollows_user.user_id]);
         return res.sendStatus(204);
 

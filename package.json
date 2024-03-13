@@ -19,6 +19,7 @@
     "express-session": "^1.18.0",
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",
+    "pg": "^8.11.3",
     "prom-client": "^15.1.0",
     "sqlite3": "^5.1.7",
     "uuid": "^9.0.1"
