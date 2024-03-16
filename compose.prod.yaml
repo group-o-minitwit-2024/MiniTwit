@@ -5,6 +5,8 @@ services:
     build: ./
     ports: 
       - 5000:5000
+    env_file:
+      - prod.env
 
   minitwit-api:
     container_name: API
@@ -13,8 +15,9 @@ services:
       dockerfile: Dockerfile.api
     ports:
       - 5001:5001
+    env_file:
+      - prod.env
 
-    
   prometheus:
     container_name: prometheus
     image: prom/prometheus:latest #v2.1.0
@@ -30,4 +33,3 @@ services:
     image: grafana/grafana-oss:latest
     ports:
       - 3000:3000
-

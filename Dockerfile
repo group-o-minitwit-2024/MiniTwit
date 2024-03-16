@@ -2,9 +2,11 @@ FROM node:slim
 
 WORKDIR /express-docker
 
-COPY . .
+COPY package.json ./
 
 RUN npm install
+
+COPY . .
 
 # Exposing server port
 EXPOSE 5000

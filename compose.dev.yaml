@@ -1,0 +1,56 @@
+services:
+
+  minitwit:
+    container_name: MiniTwit
+    build: ./
+    ports: 
+      - 5000:5000
+    env_file:
+      - dev.env
+    depends_on:
+      db:
+        condition: service_healthy
+
+  minitwit-api:
+    container_name: API
+    build: 
+      context: ./
+      dockerfile: Dockerfile.api
+    ports:
+      - 5001:5001
+    env_file:
+      - dev.env
+    depends_on:
+      db:
+        condition: service_healthy
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:latest #v2.1.0
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana-oss:latest
+    ports:
+      - 3000:3000
+
+  db:
+    container_name: db
+    build:
+      context: ./
+      dockerfile: Dockerfile.pg
+    env_file:
+      - dev.env
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"]
+      interval: 3s
+      timeout: 3s
+      retries: 3

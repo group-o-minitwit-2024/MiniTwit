@@ -1,0 +1,9 @@
+FROM postgres:latest
+
+COPY schema_postgres.sql /docker-entrypoint-initdb.d/
+
+# Copy the dev.env file to the container
+COPY dev.env /tmp/
+
+# Source the dev.env file to set environment variables
+RUN . /tmp/dev.env
