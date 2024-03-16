@@ -2,19 +2,31 @@ const fs = require('fs');
 const { Pool } = require('pg');
 
 // PostgreSQL
-
-const ca_file = fs.readFileSync('/home/ca-certificate.crt');
+let pool = new Pool();
 const SCHEMA_FILE_PATH = 'schema_postgres.sql';
-const connectionstring_data = fs.readFileSync('/home/db_connectionstring.json', 'utf-8');
-const connectionstring = JSON.parse(connectionstring_data);
-connectionstring.ssl = { ca: ca_file };
 
-const pool = new Pool(connectionstring);
+if (process.env.RUN_TYPE === 'dev') {
+    pool = new Pool({
+        user: process.env.POSTGRES_USER,
+        host: 'db',
+        database: process.env.POSTGRES_DB,
+        password: process.env.POSTGRES_PASSWORD,
+        port: process.env.POSTGRES_PORT,
+    });
+    
+} else if (process.env.RUN_TYPE === 'prod') {
+    const ca_file = fs.readFileSync('/home/ca-certificate.crt');
+    const connectionstring_data = fs.readFileSync('/home/db_connectionstring.json', 'utf-8');
+    const connectionstring = JSON.parse(connectionstring_data);
+    connectionstring.ssl = { ca: ca_file };
+    
+    pool = new Pool(connectionstring);
+}
+
 pool.connect(function (err) {
     if (err) throw err;
     console.log("Connected!");
 });
-
 
 // Function to initialize the database tables
 async function init_DB() {
