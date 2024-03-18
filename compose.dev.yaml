@@ -39,12 +39,12 @@ services:
     image: grafana/grafana-oss:latest
     ports:
       - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+    env_file:
+      - grafana/grafana.env
     depends_on:
       - prometheus
     volumes:
-      - ./grafana/:/etc/grafana/provisioning/
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
 
   db:
     container_name: db
