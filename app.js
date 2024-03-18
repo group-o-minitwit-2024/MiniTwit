@@ -17,7 +17,7 @@ const { pool, init_DB, query, execute, get_user_id} = require('./utils/db');
 
 
 // Prometheus tracking
-const { prometheus, customMetric } = require('./utils/prometheus');
+const { prometheus, prometheusMiddleware } = require('./utils/prometheus');
 
 // Configuration
 const DATABASE = './minitwit.db';
@@ -47,6 +47,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Apply middleware to track HTTP requests
+app.use(prometheusMiddleware);
 
 app.locals.user = null; // just forces layout.ejs to render. Should be refactored properly.
 
@@ -121,8 +123,6 @@ app.get('/public', async (req, res) => {
         ORDER BY message.pub_date DESC
         LIMIT $1
     `, [PER_PAGE]);
-
-    customMetric.inc();
 
     res.render('timeline.ejs', { user: req.session.user, messages, title: "Public Timeline", flashes: req.flash('success'), endpoint: '' });
   } catch (error) {
