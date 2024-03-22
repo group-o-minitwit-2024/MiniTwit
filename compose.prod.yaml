@@ -11,18 +11,6 @@ services:
       db:
         condition: service_healthy
 
-# minitwit:
-#   container_name: MiniTwit
-#   build: ./
-#   ports: 
-#     - "5000:5000"
-#   env_file:
-#     - prod.env
-#   depends_on:
-#     db:
-#       condition: service_healthy
-
-
   minitwit-api:
     container_name: API
     image: zelcam4ever/itu-minitwit-api:latest
@@ -55,16 +43,3 @@ services:
       - prometheus
     volumes:
       - ./grafana/provisioning/:/etc/grafana/provisioning/
-
-  db:
-    container_name: DB
-    image: zelcam4ever/itu-minitwit-db:latest
-    ports:
-      - 5432:5432
-    env_file:
-      - prod.env
-    healthcheck:
-      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"]
-      interval: 3s
-      timeout: 3s
-      retries: 3
