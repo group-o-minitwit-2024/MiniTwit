@@ -37,3 +37,11 @@ services:
       - prometheus
     volumes:
       - ./grafana/provisioning/:/etc/grafana/provisioning/
+
+  minitwit-db:
+    container_name: DB
+    image: zelcam4ever/itu-minitwit-db:latest
+    ports:
+      - 5432:5432
+    env_file:
+      - prod.env
