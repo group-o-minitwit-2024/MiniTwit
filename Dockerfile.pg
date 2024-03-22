@@ -1,4 +1,4 @@
-FROM postgres:latest
+FROM postgres:alpine3.19
 
 COPY schema_postgres.sql /docker-entrypoint-initdb.d/
 
