@@ -17,8 +17,8 @@ if (run_type === 'compose') {
     });
     
 } else if (run_type === 'prod') {
-    const ca_file = $CA_CERTIFICATE;
-    const connectionstring_data = $DB_CONNECTIONSTRING;
+    const ca_file = process.env.CA_CERTIFICATE;
+    const connectionstring_data = process.env.DB_CONNECTIONSTRING;
     const connectionstring = JSON.parse(connectionstring_data);
     connectionstring.ssl = { ca: ca_file };
     
