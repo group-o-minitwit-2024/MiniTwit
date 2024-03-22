@@ -6,6 +6,14 @@ COPY package.json ./
 
 RUN npm install
 
-COPY . .
+COPY ./tests ./tests
+COPY ./bin ./bin
+COPY ./app.js ./
+COPY ./views ./views
+COPY ./routes ./routes
+COPY ./public ./public
+COPY ./utils ./utils
+COPY ./schema.sql ./
+
 
 CMD ["npm", "test"]
