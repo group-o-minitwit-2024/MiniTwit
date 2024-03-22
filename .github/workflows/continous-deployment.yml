@@ -54,16 +54,16 @@ jobs:
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/itu-minitwit-db:apibuildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/itu-minitwit-db:apibuildcache,mode=max
 
-      - name: SSHing and Deploying
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USERNAME }}
-          key: ${{ secrets.KEY }}
-          script_stop: true
-          command_timeout: 200m
-          script: |
-            cd MiniTwit
-            docker-compose -f compose.prod.yaml pull
-            docker-compose -f compose.prod.yaml up -d
+      # - name: SSHing and Deploying
+      #   uses: appleboy/ssh-action@master
+      #   with:
+      #     host: ${{ secrets.SERVER_IP }}
+      #     username: ${{ secrets.SERVER_USERNAME }}
+      #     key: ${{ secrets.KEY }}
+      #     script_stop: true
+      #     command_timeout: 200m
+      #     script: |
+      #       cd MiniTwit
+      #       docker-compose -f compose.prod.yaml pull
+      #       docker-compose -f compose.prod.yaml up -d
         
