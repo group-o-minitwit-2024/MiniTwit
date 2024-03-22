@@ -7,9 +7,6 @@ services:
       - 5000:5000
     env_file:
       - prod.env
-    depends_on:
-      db:
-        condition: service_healthy
 
   minitwit-api:
     container_name: API
@@ -18,9 +15,6 @@ services:
       - 5001:5001
     env_file:
       - prod.env
-    depends_on:
-      db:
-        condition: service_healthy
 
   prometheus:
     container_name: prometheus
