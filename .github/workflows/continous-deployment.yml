@@ -34,7 +34,7 @@ jobs:
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/itu-minitwit:webbuildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/itu-minitwit:webbuildcache,mode=max
 
-      - name: Build and push MInitwit API
+      - name: Build and push Minitwit API
         uses: docker/build-push-action@v2
         with:
           context: .
@@ -43,6 +43,16 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME }}/itu-minitwit-api:latest
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/itu-minitwit-api:apibuildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/itu-minitwit-api:apibuildcache,mode=max
+
+      - name: Build and push Minitwit DB
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile.pg
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/itu-minitwit-db:latest
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/itu-minitwit-db:apibuildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/itu-minitwit-db:apibuildcache,mode=max
 
       - name: SSHing and Deploying
         uses: appleboy/ssh-action@master
