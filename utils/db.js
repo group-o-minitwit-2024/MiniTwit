@@ -4,8 +4,10 @@ const { Pool } = require('pg');
 // PostgreSQL
 let pool = new Pool();
 const SCHEMA_FILE_PATH = 'schema_postgres.sql';
+let run_type = process.env.RUN_TYPE || 'dev';
+console.log(run_type);
 
-if (process.env.RUN_TYPE === 'dev') {
+if (run_type === 'compose') {
     pool = new Pool({
         user: process.env.POSTGRES_USER,
         host: 'db',
@@ -14,13 +16,17 @@ if (process.env.RUN_TYPE === 'dev') {
         port: process.env.POSTGRES_PORT,
     });
     
-} else if (process.env.RUN_TYPE === 'prod') {
+} else if (run_type === 'prod') {
     const ca_file = fs.readFileSync('/home/ca-certificate.crt');
     const connectionstring_data = fs.readFileSync('/home/db_connectionstring.json', 'utf-8');
     const connectionstring = JSON.parse(connectionstring_data);
     connectionstring.ssl = { ca: ca_file };
     
     pool = new Pool(connectionstring);
+
+} else if (run_type === 'dev') {
+    // IMPLEMENT ME
+    throw new Error('Not implemented');
 }
 
 pool.connect(function (err) {
