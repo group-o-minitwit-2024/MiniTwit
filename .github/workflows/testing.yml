@@ -1,14 +1,12 @@
 name: Endpoint tests
 run-name: ${{ github.actor }} automated testing 🛠️
 
-#on:
-#  push:
-#    branches: [ "main" ]
-#  pull_request:
-#    branches: [ "main" ]
-
-on: [push]
-
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+    
 jobs:
   build:
     runs-on: ubuntu-latest
