@@ -16,8 +16,8 @@ if (run_type === 'compose') {
     });
     
 } else if (run_type === 'prod') {
-    const ca_file = fs.readFileSync('/home/ca-certificate.crt');
-    const connectionstring_data = fs.readFileSync('/home/db_connectionstring.json', 'utf-8');
+    const ca_file = $CA_CERTIFICATE;
+    const connectionstring_data = $DB_CONNECTIONSTRING;
     const connectionstring = JSON.parse(connectionstring_data);
     connectionstring.ssl = { ca: ca_file };
     
