@@ -24,6 +24,15 @@ const app = express();
 app.use(express.json()); // allows json in http request
 app.use(express.urlencoded({ extended: false })); // same
 
+// Prometheus tracking
+const { prometheus, prometheusMiddleware } = require('../utils/prometheus');
+app.use(prometheusMiddleware);
+app.get('/metrics', async (req, res) => {
+    res.set('Content-Type', prometheus.register.contentType);
+    const metrics = await prometheus.register.metrics();
+    res.end(metrics);
+});
+
 
 function not_req_from_simulator(req) {
     const fromSimulator = req.headers.authorization;
