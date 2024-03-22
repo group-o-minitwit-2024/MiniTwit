@@ -2,7 +2,7 @@ services:
 
   minitwit:
     container_name: MiniTwit
-    build: ./
+    image: zelcam4ever/itu-minitwit:latest
     ports: 
       - 5000:5000
     env_file:
@@ -10,9 +10,7 @@ services:
 
   minitwit-api:
     container_name: API
-    build: 
-      context: ./
-      dockerfile: Dockerfile.api
+    image: zelcam4ever/itu-minitwit-api:latest
     ports:
       - 5001:5001
     env_file:
