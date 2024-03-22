@@ -1,0 +1,11 @@
+FROM node:slim
+
+WORKDIR /express-docker
+
+COPY package.json ./
+
+RUN npm install
+
+COPY . .
+
+CMD ["npm", "test"]
