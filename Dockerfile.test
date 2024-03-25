@@ -15,5 +15,6 @@ COPY ./public ./public
 COPY ./utils ./utils
 COPY ./schema_postgres.sql ./
 
+USER node
 
 CMD ["npm", "test"]
