@@ -13,7 +13,7 @@ COPY ./views ./views
 COPY ./routes ./routes
 COPY ./public ./public
 COPY ./utils ./utils
-COPY ./schema.sql ./
+COPY ./schema_postgres.sql ./
 
 
 CMD ["npm", "test"]
