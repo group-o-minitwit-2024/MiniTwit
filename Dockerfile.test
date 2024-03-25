@@ -1,0 +1,20 @@
+FROM node:slim
+
+WORKDIR /express-docker
+
+COPY package.json ./
+
+RUN npm install
+
+COPY ./tests ./tests
+COPY ./bin ./bin
+COPY ./app.js ./
+COPY ./views ./views
+COPY ./routes ./routes
+COPY ./public ./public
+COPY ./utils ./utils
+COPY ./schema_postgres.sql ./
+
+USER node
+
+CMD ["npm", "test"]

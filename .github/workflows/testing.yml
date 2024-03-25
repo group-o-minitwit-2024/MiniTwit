@@ -1,0 +1,20 @@
+name: Endpoint tests
+run-name: ${{ github.actor }} automated testing 🛠️
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+#    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v3
+    - name: build docker compose
+      run: docker compose -f compose.test.yaml build
+    - name: run docker compose
+      run: docker compose -f compose.test.yaml up --abort-on-container-exit
