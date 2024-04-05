@@ -1,0 +1,17 @@
+{
+  "env": {
+    "node": true,
+    "commonjs": true
+  },
+  "extends": "eslint:recommended",
+  "parserOptions": {
+    "ecmaVersion": 2024
+  },
+  "rules": {
+    "indent": ["error", "tab"], // Use tab for indentation
+    "linebreak-style": ["error", "unix"],
+    "quotes": ["error", "single"],
+    "semi": ["error", "always"],
+    "no-console": "off"
+  }
+}
