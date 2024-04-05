@@ -13,9 +13,13 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Get Current Date
+      id: get_date
+      run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+
     - name: Create Release
       run: |
-        gh release create weekly \
+        gh release create ${{ steps.get_date.outputs.date }} \
           --title "Weekly Release" \
           --generate-notes
 
