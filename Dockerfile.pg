@@ -2,6 +2,8 @@ FROM postgres:alpine3.19
 
 COPY schema_postgres.sql /docker-entrypoint-initdb.d/
 
+ENV POSTGRES_HOST_AUTH_METHOD=trust
+
 # Copy the dev.env file to the container
 COPY dev.env /tmp/
 

@@ -1,0 +1,27 @@
+services:
+
+  minitwit:
+    container_name: MiniTwitTests
+    build: 
+      context: ./
+      dockerfile: Dockerfile.test
+    env_file:
+      - dev.env
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    container_name: db
+    build:
+      context: ./
+      dockerfile: Dockerfile.pg
+    env_file:
+      - dev.env
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"]
+      interval: 3s
+      timeout: 3s
+      retries: 3
