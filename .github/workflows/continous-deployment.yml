@@ -44,26 +44,16 @@ jobs:
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/itu-minitwit-api:apibuildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/itu-minitwit-api:apibuildcache,mode=max
 
-      # - name: Build and push Minitwit DB
-      #   uses: docker/build-push-action@v2
-      #   with:
-      #     context: .
-      #     file: ./Dockerfile.pg
-      #     push: true
-      #     tags: ${{ secrets.DOCKER_USERNAME }}/itu-minitwit-db:latest
-      #     cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/itu-minitwit-db:apibuildcache
-      #     cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/itu-minitwit-db:apibuildcache,mode=max
-
-      # - name: SSHing and Deploying
-      #   uses: appleboy/ssh-action@master
-      #   with:
-      #     host: ${{ secrets.SERVER_IP }}
-      #     username: ${{ secrets.SERVER_USERNAME }}
-      #     key: ${{ secrets.KEY }}
-      #     script_stop: true
-      #     command_timeout: 200m
-      #     script: |
-      #       cd MiniTwit
-      #       docker-compose -f compose.prod.yaml pull
-      #       docker-compose -f compose.prod.yaml up -d
+      - name: SSHing and Deploying
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.KEY }}
+          script_stop: true
+          command_timeout: 200m
+          script: |
+            cd MiniTwit
+            docker-compose -f compose.prod.yaml pull
+            docker-compose -f compose.prod.yaml up -d
         
