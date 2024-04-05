@@ -110,6 +110,6 @@ Error: cannot POST /login (500)
     * Note: table "user" was changed to name "account" since user is a reserved keyword in PostgreSQL
 
 ### 22/03 - Author: ezpa
-* DIgitalOcean now retrieves the images from docker-hub, implementing it on the CD pipeline
+* DigitalOcean now retrieves the images from docker-hub, implementing it on the CD pipeline
 
  
