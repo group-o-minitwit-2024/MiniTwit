@@ -14,10 +14,10 @@ on:
     branches: [ "main" ]
     paths:
       - '**/*.js'  # Run only for changes in any JS file
-
-
-
-
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - '**/*.js'  # Run only for changes in any JS file in PRs
 
 
 jobs:
