@@ -108,4 +108,8 @@ Error: cannot POST /login (500)
 ### 13/03 - Author: lakj
 * Refactored app and api usage of db.js to use remote PostgreSQL hosted on DigitalOcean
     * Note: table "user" was changed to name "account" since user is a reserved keyword in PostgreSQL
+
+### 22/03 - Author: ezpa
+* DigitalOcean now retrieves the images from docker-hub, implementing it on the CD pipeline
+
  
