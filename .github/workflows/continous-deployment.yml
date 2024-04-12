@@ -45,11 +45,11 @@ jobs:
           cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/itu-minitwit-api:apibuildcache,mode=max
 
       - name: SSHing and Deploying
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USERNAME }}
-          key: ${{ secrets.SERVER_KEY }}
+          password: ${{ secrets.SERVER_KEY }}
           script_stop: true
           command_timeout: 200m
           script: |
