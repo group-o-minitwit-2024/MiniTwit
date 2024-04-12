@@ -8,7 +8,7 @@
     "ecmaVersion": 2024
   },
   "rules": {
-    "indent": ["error", 4], // Use tab for indentation
+    "indent": ["error", 4], // Use four spaces for indentation
     "linebreak-style": ["error", "unix"],
     "quotes": ["error", "single"],
     "semi": ["error", "always"],
