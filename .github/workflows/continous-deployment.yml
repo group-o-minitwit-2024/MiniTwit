@@ -45,14 +45,15 @@ jobs:
           cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/itu-minitwit-api:apibuildcache,mode=max
 
       - name: SSHing and Deploying
-        uses: fifsky/ssh-action@master
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          command: |
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_PRIVATE_KEY }}
+          script_stop: true
+          command_timeout: 200m
+          script: |
             cd MiniTwit
             docker-compose -f compose.prod.yaml pull
             docker-compose -f compose.prod.yaml up -d
-          host: ${{ secrets.SERVER_IP }}
-          user: ${{ secrets.SERVER_USERNAME }}
-          key: ${{ secrets.SERVER_KEY }}
-
         
