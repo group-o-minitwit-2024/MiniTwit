@@ -1,5 +1,6 @@
 FROM node:slim
 
+
 WORKDIR /express-docker
 
 ENV RUN_TYPE=dev
