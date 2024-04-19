@@ -13,10 +13,19 @@ Grafana is used to visualize metrics tracked by Prometheus. It runs on `PORT=300
 
 ## Linting
 ### Javascript linting
-For linting `.js` files, we use `eslint`. This runs as a github actions workflow to lint all javascript files. For fixing linting locally, run
+For linting `.js` files, we use `eslint`. This runs as a github actions workflow to lint all javascript files. 
+
+#### Lint locally
+To lint locally, install the correct version with 
 ```
-npx eslint FILE_NAME --fix
+npm install eslint@8.57.0
 ```
+
+Run lint checking with
+```
+npx eslint FILE_NAME
+```
+Use `--fix` flag for applying lint changes to file.
 
 ## What are we missing?
 | # | Date | Time | Lecturer | Preparation | Topic | Exercises | Project Work | Done? | Notes |
