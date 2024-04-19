@@ -11,12 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Find Dockerfiles
-        id: find_dockerfiles
-        run: |
-          dockerfiles=$(find . -type f -name 'Dockerfile*')
-          echo "dockerfiles=$dockerfiles" >> $GITHUB_ENV  
-      - name: Lint Dockerfiles
-        uses: hadolint/hadolint-action@v3.1.0
+      - uses: hadolint/hadolint-action@v3.1.0
         with:
-          dockerfile: ${{ env.dockerfiles }} 
+          dockerfile: Dockerfile
