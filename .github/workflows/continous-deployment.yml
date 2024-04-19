@@ -54,6 +54,6 @@ jobs:
           command_timeout: 200m
           script: |
             cd MiniTwit
-            docker-compose -f compose.prod.yaml pull
-            docker-compose -f compose.prod.yaml up -d
+            docker compose -f compose.prod.yaml pull
+            docker compose -f compose.prod.yaml up -d
         
