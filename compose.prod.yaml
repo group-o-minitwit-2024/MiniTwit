@@ -7,6 +7,8 @@ services:
       - 5000:5000
     env_file:
       - prod.env
+    volumes:
+      - ../secrets:/express-docker/secrets
 
   minitwit-api:
     container_name: API
@@ -15,6 +17,8 @@ services:
       - 5001:5001
     env_file:
       - prod.env
+    volumes:
+      - ../secrets:/express-docker/secrets
 
   prometheus:
     container_name: prometheus
