@@ -17,6 +17,7 @@ const responseCounter = new prometheus.Counter({
 const reqDurationSummary = new prometheus.Histogram({
   name: 'request_duration_summary',
   help: 'Request duration distribution.',
+  buckets: [1, 5, 10, 50, 100, 500, 1000, 5000, 10000],
 });
 
 // Middleware to track HTTP requests
