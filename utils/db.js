@@ -14,6 +14,12 @@ if (run_type === 'compose') {
         password: process.env.POSTGRES_PASSWORD,
         port: process.env.POSTGRES_PORT,
     });
+
+    console.log('user: ',process.env.POSTGRES_USER)
+    console.log('host: ','db')
+    console.log('database: ',process.env.POSTGRES_DB)
+    console.log('password: ',process.env.POSTGRES_PASSWORD)
+    console.log('port: ',process.env.POSTGRES_PORT)
     
 } else if (run_type === 'prod') {
     const ca_file = fs.readFileSync('/express-docker/ca-certificate.crt');
@@ -61,7 +67,12 @@ const execute = async (sql, params = []) => {
 }
 
 const get_user_id = async (username) => {
-    const user = await query('SELECT user_id FROM account WHERE username = $1', [username], true);
+    const user = await Account.findOne({
+        attributes: ['user_id'],
+        where: {
+          username: username
+        }
+      });
     return user ? user.user_id : null;
 };
 
