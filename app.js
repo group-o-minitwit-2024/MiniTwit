@@ -14,7 +14,7 @@ const MD5 = require('crypto-js/md5');
 //const { connect_DB, init_DB, query, execute, get_user_id} = require('./utils/dbUtils');
 const { pool, init_DB, query, execute, get_user_id} = require('./utils/db');
 
-// Import the testDatabase function
+// Import the sequlize functionality
 const { Account, Message, Follower } = require('./sequilize.js');
 const { Sequelize } = require('sequelize');
 
@@ -119,10 +119,7 @@ app.get('/', async (req, res) => {
       limit: PER_PAGE,
       raw: true
     });
-    
-    
-    console.log(messages)
-    
+        
     
     res.render('timeline.ejs', { user: req.session.user, messages, title: "My Timeline", flashes: req.flash('success'), endpoint: "user_timline" });
   } catch (error) {

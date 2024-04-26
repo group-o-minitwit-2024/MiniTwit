@@ -1,6 +1,11 @@
 const fs = require('fs');
 const { Pool } = require('pg');
 
+// Import the sequlize functionality
+const { Account, Message, Follower } = require('../sequilize.js');
+const { Sequelize } = require('sequelize');
+
+
 // PostgreSQL
 let pool = new Pool();
 const SCHEMA_FILE_PATH = 'schema_postgres.sql';
