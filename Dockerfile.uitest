@@ -1,0 +1,14 @@
+FROM node:slim
+
+WORKDIR /express-docker
+
+COPY package.json ./
+
+RUN npm install
+
+COPY ./test ./test
+COPY ./wdio.conf.js ./wdio.conf.js
+
+USER node
+
+CMD ["npm", "run", "wdio"]
