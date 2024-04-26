@@ -9,8 +9,6 @@ services:
       - prod.env
     volumes:
       - ../secrets:/express-docker/secrets
-    networks:
-      - prom_net
 
   minitwit-api:
     container_name: API
@@ -21,8 +19,3 @@ services:
       - prod.env
     volumes:
       - ../secrets:/express-docker/secrets
-
-networks:
-  prom_net:
-    name: prom_net
-    driver: bridge
