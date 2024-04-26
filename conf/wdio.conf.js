@@ -21,7 +21,7 @@ exports.config = {
     // of the config file unless it's absolute.
     //
     specs: [
-        './test/specs/**/*.js'
+        '../test/specs/**/*.js'
     ],
     // Patterns to exclude.
     exclude: [
@@ -49,17 +49,11 @@ exports.config = {
     // Sauce Labs platform configurator - a great tool to configure your capabilities:
     // https://saucelabs.com/platform/platform-configurator
     //
+
+
     capabilities: [{
-        browserName: 'chrome',
+        browserName: 'firefox'
     }],
-
-
-    // capabilities: [{
-    //     browserName: 'firefox',
-    //     'moz:firefoxOptions': {
-    //         args: ['-headless']
-    //     }
-    // }],
 
     //
     // ===================

@@ -6,7 +6,8 @@
     "start": "node ./bin/www",
     "start-api": "node ./API/api.js",
     "test": "mocha ./tests/*.test.js",
-    "wdio": "wdio run ./wdio.conf.js"
+    "wdio": "wdio run ./conf/wdio.conf.js",
+    "browserstack": "wdio run ./conf/browserstack.conf.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
@@ -35,6 +36,7 @@
     "chai": "^5.1.0",
     "mocha": "~3.5.3",
     "supertest": "^6.3.4",
+    "wdio-browserstack-service": "^0.1.19",
     "wdio-docker-service": "^3.2.1"
   }
 }

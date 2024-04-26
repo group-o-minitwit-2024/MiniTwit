@@ -8,7 +8,7 @@ describe('My MiniTwit application', () => {
     it('should register with valid credentials', async () => {
         await RegisterPage.open()
 
-        await RegisterPage.register('tomsmith5', 'tomsmith@mail.com5', 'SuperSecretPassword!')
+        await RegisterPage.register('tomsmith', 'tomsmith@mail.com', 'SuperSecretPassword!')
         // await expect(await browser.getUrl()).toEqual("http://localhost:5000/login")
         await expect(await LoginPage.flashAlert[0]).toEqual('You were successfully registered and can login now')
     })
