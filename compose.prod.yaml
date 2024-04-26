@@ -7,6 +7,8 @@ services:
       - 5000:5000
     env_file:
       - prod.env
+    volumes:
+      - ../secrets:/express-docker/secrets
 
   minitwit-api:
     container_name: API
@@ -15,25 +17,5 @@ services:
       - 5001:5001
     env_file:
       - prod.env
-
-  prometheus:
-    container_name: prometheus
-    image: prom/prometheus:latest #v2.1.0
-    ports:
-      - 9090:9090
     volumes:
-      - ./prometheus/:/etc/prometheus/
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-
-  grafana:
-    container_name: grafana
-    image: grafana/grafana-oss:latest
-    ports:
-      - "3000:3000"
-    env_file:
-      - grafana/grafana.env
-    depends_on:
-      - prometheus
-    volumes:
-      - ./grafana/provisioning/:/etc/grafana/provisioning/
+      - ../secrets:/express-docker/secrets

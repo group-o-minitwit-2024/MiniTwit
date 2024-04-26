@@ -1,33 +1,43 @@
 const prometheus = require('prom-client');
+const os = require('os-utils');
 
 // Initialize Prometheus metrics
 prometheus.collectDefaultMetrics();
 
-// Initialize Prometheus metrics
-const httpRequestCounter = new prometheus.Counter({
-  name: 'http_requests_total',
-  help: 'Total number of HTTP requests',
-  labelNames: ['method', 'endpoint'],
+const cpuGauge = new prometheus.Gauge({
+  name: 'cpu_usage',
+  help: 'Current load of the CPU in percent.',
 });
 
-const httpRequestDurationHistogram = new prometheus.Histogram({
-  name: 'http_request_duration_seconds',
-  help: 'Histogram of response latency for HTTP requests',
-  labelNames: ['method', 'endpoint'],
-  buckets: [0.1, 0.5, 1, 2, 5], // specify your desired bucket configuration
+const responseCounter = new prometheus.Counter({
+  name: 'response_counter',
+  help: 'The count of HTTP responses sent.',
+});
+
+const reqDurationSummary = new prometheus.Histogram({
+  name: 'request_duration_summary',
+  help: 'Request duration distribution.',
+  buckets: [1, 5, 10, 50, 100, 500, 1000, 5000, 10000],
 });
 
 // Middleware to track HTTP requests
-const prometheusMiddleware = (req, res, next) => {
-  const startTime = Date.now();
+const prometheusMiddleware = async (req, res, next) => {
+  // Ignore requests to /metrics
+  if (req.path === '/metrics') {
+    return next();
+  }
   
-  // Increment counter for each request
-  httpRequestCounter.labels(req.method, req.path).inc();
+  const startTime = Date.now();
+
+  // Track CPU usage
+  os.cpuUsage(function(v){
+    cpuGauge.set(v);
+  });
 
   res.on('finish', () => {
     const duration = Date.now() - startTime;
-    // Observe the duration of the request
-    httpRequestDurationHistogram.labels(req.method, req.path).observe(duration / 1000); // Convert to seconds
+    responseCounter.inc();
+    reqDurationSummary.observe(duration);
   });
 
   next();

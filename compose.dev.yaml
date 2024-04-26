@@ -1,5 +1,4 @@
 services:
-
   minitwit:
     container_name: MiniTwit
     build: ./
@@ -7,6 +6,9 @@ services:
       - "5000:5000"
     env_file:
       - dev.env
+    networks:
+      - prom_net
+      - db_net
     depends_on:
       db:
         condition: service_healthy
@@ -20,31 +22,12 @@ services:
       - "5001:5001"
     env_file:
       - dev.env
+    networks:
+      - prom_net
+      - db_net
     depends_on:
       db:
         condition: service_healthy
-
-  prometheus:
-    container_name: prometheus
-    image: prom/prometheus:latest #v2.1.0
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./prometheus/:/etc/prometheus/
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-
-  grafana:
-    container_name: grafana
-    image: grafana/grafana-oss:latest
-    ports:
-      - "3000:3000"
-    env_file:
-      - grafana/grafana.env
-    depends_on:
-      - prometheus
-    volumes:
-      - ./grafana/provisioning/:/etc/grafana/provisioning/
 
   db:
     container_name: db
@@ -55,8 +38,19 @@ services:
       - dev.env
     ports:
       - "5432:5432"
+    networks:
+      - db_net
     healthcheck:
       test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"]
       interval: 3s
       timeout: 3s
       retries: 3
+
+networks:
+  db_net:
+    name: db_net
+    driver: bridge
+    
+  prom_net:
+    name: prom_net
+    driver: bridge

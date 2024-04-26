@@ -19,6 +19,7 @@
     "express-session": "^1.18.0",
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",
+    "os-utils": "^0.0.14",
     "pg": "^8.11.5",
     "pg-hstore": "^2.3.4",
     "prom-client": "^15.1.0",
