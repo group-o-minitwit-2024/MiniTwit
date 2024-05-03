@@ -112,4 +112,34 @@ Error: cannot POST /login (500)
 ### 22/03 - Author: ezpa
 * DigitalOcean now retrieves the images from docker-hub, implementing it on the CD pipeline
 
- 
+### 03/05 - Author: mkth, mahf
+We are gonna do Docker Swarm. *How to get started event?*
+
+Trying to follow [this tutorial](https://www.digitalocean.com/community/tutorials/how-to-create-a-cluster-of-docker-containers-with-docker-swarm-and-digitalocean-on-ubuntu-16-04 )
+* Start by getting [Digital Ocean token](https://docs.digitalocean.com/reference/api/create-personal-access-token/), *DOTOKEN*, from the Digital Ocean project
+* Set it as an env variable with ```export DOTOKEN=...```
+* Install `docker-machine`
+```sh
+curl -L https://github.com/docker/machine/releases/download/v0.16.2/docker-machine-`uname -s`-`uname -m` >/tmp/docker-machine &&
+    chmod +x /tmp/docker-machine &&
+    sudo cp /tmp/docker-machine /usr/local/bin/docker-machine
+```
+
+* Provision a single machine with
+```sh
+  docker-machine create --driver digitalocean  \
+  --digitalocean-image ubuntu-24-04-x64 \
+  --digitalocean-access-token $DOTOKEN machine-name
+```
+
+* This provisions a machine in New York for some reason
+* Then, to provision multiple machines at once, 
+```sh
+for i in 1 2 3; do docker-machine create --driver digitalocean \
+--digitalocean-image  ubuntu-24-04-x64 \
+--digitalocean-access-token $DOTOKEN node-$i; done
+```
+* I don't think we want to use `docker-machine`
+* You know what, f this, we do something else.
+
+Instead we are going to try [itu-minitwit-docker-swarm-teraform](https://github.com/itu-devops/itu-minitwit-docker-swarm-teraform) tutorial.
