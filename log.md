@@ -143,3 +143,7 @@ for i in 1 2 3; do docker-machine create --driver digitalocean \
 * You know what, f this, we do something else.
 
 Instead we are going to try [itu-minitwit-docker-swarm-teraform](https://github.com/itu-devops/itu-minitwit-docker-swarm-teraform) tutorial.
+
+* Following this tutorial seems to work nicely :+1:
+* We are going to do it for our MiniTwit application. To this end, we start by getting Docker Swarm to work with MiniTwit
+* Hmmmm it seems to almost work with [compose.swarm.yaml](/compose.swarm.yaml), but for some reason, pools are ended, which leads to the server crashing. we have no clue why, and we feel like giving up, so we are gonna go drink beer!

@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  minitwit:
+    image: minitwit:latest
+    ports: 
+      - "5000:5000"
+    env_file:
+      - dev.env
+    networks:
+      - prom_net
+      - db_net
+    depends_on: 
+      - db
+
+  minitwit-api:
+    image: minitwit-api:latest
+    ports:
+      - "5001:5001"
+    env_file:
+      - dev.env
+    networks:
+      - prom_net
+      - db_net
+    depends_on: 
+      - db
+
+  db:
+    image: postgres:alpine3.19
+    env_file:
+      - dev.env
+    volumes:
+      - ./schema_postgres.sql:/docker-entrypoint-initdb.d/schema_postgres.sql 
+    ports:
+      - "5432:5432"
+    networks:
+      - db_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 3s
+      timeout: 3s
+      retries: 3
+
+networks:
+  db_net:
+    driver: overlay
+    attachable: true
+
+  prom_net:
+    driver: overlay
+    attachable: true
+
+# networks:
+#  db_net: {}
+#  prom_net: {}
