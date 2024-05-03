@@ -1,15 +1,15 @@
 exports.config = {
-    user: process.env.BROWSERSTACK_USERNAME || 'BROWSERSTACK_USERNAME',
-    key: process.env.BROWSERSTACK_ACCESS_KEY || 'BROWSERSTACK_ACCESS_KEY',
+    user: process.env.BROWSERSTACK_USERNAME,
+    key: process.env.BROWSERSTACK_ACCESS_KEY,
   
     updateJob: false,
     specs: ['../test/specs/test.e2e.js'],
     exclude: [],
   
-    logLevel: 'warn',
+    logLevel: 'info',
     coloredLogs: true,
     screenshotPath: './errorShots/',
-    baseUrl: '',
+    baseUrl: 'http://178.62.218.96:5000',
     waitforTimeout: 10000,
     connectionRetryTimeout: 120000,
     connectionRetryCount: 3,
@@ -22,6 +22,7 @@ exports.config = {
       chai.Should();
     },
     framework: 'mocha',
+    reporters: ['spec'],
     mochaOpts: {
       ui: 'bdd',
       timeout: 60000,

@@ -1,6 +1,6 @@
 const parallelConfig = {
-    user: 'laugekj_FQZGuf',
-    key: 'RrDDHgdohrmyfBCcnQsS',
+    user: process.env.BROWSERSTACK_USERNAME,
+    key: process.env.BROWSERSTACK_ACCESS_KEY,
     hostname: 'hub.browserstack.com',
     capabilities: [
       {
@@ -11,26 +11,31 @@ const parallelConfig = {
           browserVersion: '120.0'
         }
       },
-      {
-        browserName: 'Safari',
-        'bstack:options': {
-          os: 'OS X',
-          osVersion: 'Monterey',
-          browserVersion: '15.6'
-        }
-      },
-      {
-        browserName: 'Firefox',
-        'bstack:options': {
-          os: 'Windows',
-          osVersion: '11',
-          browserVersion: 'latest'
-        }
-      }
+      // {
+      //   browserName: 'Safari',
+      //   'bstack:options': {
+      //     os: 'OS X',
+      //     osVersion: 'Monterey',
+      //     browserVersion: '15.6'
+      //   }
+      // },
+      // {
+      //   browserName: 'Firefox',
+      //   'bstack:options': {
+      //     os: 'Windows',
+      //     osVersion: '11',
+      //     browserVersion: 'latest'
+      //   }
+      // }
     ],
     commonCapabilities: {
       'bstack:options': {
-        buildName: 'browserstack-build-1'
+        buildName: 'minitwit',
+        buildIdentifier: "${DATE_TIME}",
+        projectName: "MiniTwit",
+        networkLogs: "true",
+        consoleLogs: "info",
+        networkLogs: true,
       }
     },
     maxInstances: 10

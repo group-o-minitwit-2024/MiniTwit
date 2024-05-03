@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "docker-dev-build": "docker compose -f compose.dev.yaml build",
+    "docker-dev-run": "docker compose -f compose.dev.yaml up",
+    "docker-dev-down": "docker compose -f compose.dev.yaml down",
     "start": "node ./bin/www",
     "start-api": "node ./API/api.js",
     "test": "mocha ./tests/*.test.js",

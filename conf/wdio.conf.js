@@ -27,6 +27,7 @@ exports.config = {
     exclude: [
         // 'path/to/excluded/files'
     ],
+    baseUrl: 'http://127.0.0.1:5000',
     //
     // ============
     // Capabilities
@@ -49,6 +50,7 @@ exports.config = {
     // Sauce Labs platform configurator - a great tool to configure your capabilities:
     // https://saucelabs.com/platform/platform-configurator
     //
+
 
 
     capabilities: [{
