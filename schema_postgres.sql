@@ -1,5 +1,6 @@
 -- Drop table if exists user (changed to account)
 DROP TABLE IF EXISTS account;
+DROP INDEX IF EXISTS idx_userid;
 
 -- Create table user
 CREATE TABLE account (
@@ -8,6 +9,9 @@ CREATE TABLE account (
   email VARCHAR NOT NULL,
   pw_hash VARCHAR NOT NULL
 );
+-- Create index on user
+CREATE INDEX idx_userid ON account (user_id);
+
 
 -- Drop table if exists follower
 DROP TABLE IF EXISTS follower;
@@ -20,6 +24,7 @@ CREATE TABLE follower (
 
 -- Drop table if exists message
 DROP TABLE IF EXISTS message;
+DROP INDEX IF EXISTS idx_messageid;
 
 -- Create table message
 CREATE TABLE message (
@@ -29,3 +34,6 @@ CREATE TABLE message (
   pub_date INTEGER,
   flagged INTEGER
 );
+
+-- Create index on message  
+CREATE INDEX idx_messageid ON message (message_id);
