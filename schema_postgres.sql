@@ -37,3 +37,4 @@ CREATE TABLE message (
 
 -- Create index on message  
 CREATE INDEX idx_messageid ON message (message_id);
+CREATE INDEX idx_pubdata ON message (pub>_date);
