@@ -147,3 +147,49 @@ Instead we are going to try [itu-minitwit-docker-swarm-teraform](https://github.
 * Following this tutorial seems to work nicely :+1:
 * We are going to do it for our MiniTwit application. To this end, we start by getting Docker Swarm to work with MiniTwit
 * Hmmmm it seems to almost work with [compose.swarm.yaml](/compose.swarm.yaml), but for some reason, pools are ended, which leads to the server crashing. we have no clue why, and we feel like giving up, so we are gonna go drink beer!
+* Relevant error logs
+```
+lol_minitwit.1.jzczfw0wzbrm@pop-os    | 
+lol_minitwit.1.jzczfw0wzbrm@pop-os    | > minitwit-2@0.0.0 start
+lol_minitwit.1.jzczfw0wzbrm@pop-os    | > node ./bin/www
+lol_minitwit.1.jzczfw0wzbrm@pop-os    | 
+lol_minitwit.1.jzczfw0wzbrm@pop-os    | Minitwit running at port :5000
+lol_minitwit.1.jzczfw0wzbrm@pop-os    | Connected!
+lol_minitwit.1.cinae4bwzcit@pop-os    | 
+lol_minitwit.1.cinae4bwzcit@pop-os    | > minitwit-2@0.0.0 start
+lol_minitwit.1.cinae4bwzcit@pop-os    | > node ./bin/www
+lol_minitwit.1.cinae4bwzcit@pop-os    | 
+lol_minitwit.1.cinae4bwzcit@pop-os    | Minitwit running at port :5000
+lol_minitwit.1.cinae4bwzcit@pop-os    | Connected!
+lol_minitwit.1.cinae4bwzcit@pop-os    | We got a visitor from:  ::ffff:10.0.0.2
+lol_minitwit.1.8395exjbl32f@pop-os    | 
+lol_minitwit.1.cinae4bwzcit@pop-os    | GET / 302 4.769 ms - 58
+lol_minitwit.1.8395exjbl32f@pop-os    | > minitwit-2@0.0.0 start
+lol_minitwit.1.cinae4bwzcit@pop-os    | Connected successfully to the database
+lol_minitwit.1.8395exjbl32f@pop-os    | > node ./bin/www
+lol_minitwit.1.cinae4bwzcit@pop-os    | GET /public 200 19.152 ms - 732
+lol_minitwit.1.8395exjbl32f@pop-os    | 
+lol_minitwit.1.cinae4bwzcit@pop-os    | GET /stylesheets/style.css 304 0.976 ms - -
+lol_minitwit.1.cinae4bwzcit@pop-os    | Error connecting to the database: Error: Cannot use a pool after calling end on the pool
+lol_minitwit.1.8395exjbl32f@pop-os    | Minitwit running at port :5000
+lol_minitwit.1.8395exjbl32f@pop-os    | Connected!
+lol_minitwit.1.cinae4bwzcit@pop-os    |     at BoundPool.connect (/express-docker/node_modules/pg-pool/index.js:173:19)
+lol_minitwit.1.cinae4bwzcit@pop-os    |     at /express-docker/utils/db.js:45:33
+lol_minitwit.1.8395exjbl32f@pop-os    | Connected successfully to the database
+lol_minitwit.1.cinae4bwzcit@pop-os    |     at query (/express-docker/utils/db.js:54:5)
+lol_minitwit.1.8395exjbl32f@pop-os    | GET /public 304 34.949 ms - -
+lol_minitwit.1.8395exjbl32f@pop-os    | GET /stylesheets/style.css 304 1.223 ms - -
+lol_minitwit.1.cinae4bwzcit@pop-os    |     at /express-docker/app.js:253:30
+lol_minitwit.1.cinae4bwzcit@pop-os    |     at Layer.handle [as handle_request] (/express-docker/node_modules/express/lib/router/layer.js:95:5)
+lol_minitwit.1.8395exjbl32f@pop-os    | Error connecting to the database: Error: Cannot use a pool after calling end on the pool
+lol_minitwit.1.cinae4bwzcit@pop-os    |     at next (/express-docker/node_modules/express/lib/router/route.js:137:13)
+lol_minitwit.1.8395exjbl32f@pop-os    |     at BoundPool.connect (/express-docker/node_modules/pg-pool/index.js:173:19)
+lol_minitwit.1.cinae4bwzcit@pop-os    |     at Route.dispatch (/express-docker/node_modules/express/lib/router/route.js:112:3)
+lol_minitwit.1.8395exjbl32f@pop-os    |     at /express-docker/utils/db.js:45:33
+lol_minitwit.1.cinae4bwzcit@pop-os    |     at Layer.handle [as handle_request] (/express-docker/node_modules/express/lib/router/layer.js:95:5)
+lol_minitwit.1.8395exjbl32f@pop-os    |     at query (/express-docker/utils/db.js:54:5)
+lol_minitwit.1.cinae4bwzcit@pop-os    |     at /express-docker/node_modules/express/lib/router/index.js:281:22
+lol_minitwit.1.8395exjbl32f@pop-os    |     at /express-docker/app.js:253:30
+lol_minitwit.1.8395exjbl32f@pop-os    |     at Layer.handle [as handle_request] (/express-docker/node_modules/express/lib/router/layer.js:95:5)
+lol_minitwit.1.cinae4bwzcit@pop-os    |     at param (/express-docker/node_modules/express/lib/router/index.js:354:14)
+```
