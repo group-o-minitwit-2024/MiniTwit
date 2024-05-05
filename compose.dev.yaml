@@ -1,7 +1,7 @@
 services:
   minitwit:
     container_name: MiniTwit
-    build: ./
+    image: minitwit:latest
     ports: 
       - "5000:5000"
     env_file:
@@ -15,9 +15,7 @@ services:
 
   minitwit-api:
     container_name: API
-    build: 
-      context: ./
-      dockerfile: Dockerfile.api
+    image: minitwit-api:latest
     ports:
       - "5001:5001"
     env_file:
@@ -30,18 +28,17 @@ services:
         condition: service_healthy
 
   db:
-    container_name: db
-    build:
-      context: ./
-      dockerfile: Dockerfile.pg
+    image: postgres:alpine3.19
     env_file:
       - dev.env
+    volumes:
+      - ./utils/schema_postgres.sql:/docker-entrypoint-initdb.d/schema_postgres.sql 
     ports:
       - "5432:5432"
     networks:
       - db_net
     healthcheck:
-      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 3s
       timeout: 3s
       retries: 3

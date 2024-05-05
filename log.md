@@ -119,3 +119,82 @@ Error: cannot POST /login (500)
   * Will be an issue regarding shared code between app and api
   * Solution: make a shared folder - I will use [`/utils`](/utils/).
 * Probably gonna have some issues with routings, but hopefully will be fine
+* This shared dependency is giving me issues
+* Currently, my structure is
+```
+.
+├── API
+│   ├── Dockerfile
+│   ├── package.json
+│   ├── schema.sql
+│   ├── simulator
+│   │   ├── minitwit_scenario.csv
+│   │   └── minitwit_simulator.py
+│   └── src
+│       ├── api.js
+│       ├── api_test.js
+│       └── latest_processed_sim_action_id.txt
+├── app
+│   ├── Dockerfile
+│   ├── Dockerfile.test
+│   ├── package.json
+│   └── src
+│       ├── app.js
+│       ├── bin
+│       │   └── www
+│       ├── public
+│       │   └── stylesheets
+│       │       └── style.css
+│       ├── tests
+│       │   ├── add_message.test.js
+│       │   ├── login.test.js
+│       │   ├── register.test.js
+│       │   └── timeline.test.js
+│       └── views
+│           ├── error.ejs
+│           ├── layout.ejs
+│           ├── login.ejs
+│           ├── register.ejs
+│           └── timeline.ejs
+├── compose.dev.yaml
+├── compose.prod.yaml
+├── compose.test.yaml
+├── dev.env
+├── Dockerfile.pg
+├── log.md
+├── prod.env
+├── README.md
+├── sonar-project.properties
+└── utils
+    ├── db.js
+    ├── prometheus.js
+    └── schema_postgres.sql
+```
+* When I run `docker run -it --rm minitwit npm test`, I get `Error: Cannot find module '../../utils/db'`, due to utils being in a parent directory of the app, which leads to the Dockerfile not copying it with `COPY . .`
+* Not sure how to handle this entirely. I think I'm gonna just duplicate the code such that utils are in both app and API
+* Our postgres image can be removed entirely and just use a base postgres image by specifying volumes and environment variables
+```
+  db:
+    image: postgres:alpine3.19
+    env_file:
+      - dev.env
+    volumes:
+      - ./schema_postgres.sql:/docker-entrypoint-initdb.d/schema_postgres.sql 
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 3s
+      timeout: 3s
+      retries: 3
+```
+* So my solution is to create `/utils` in the the root of the project, and then copy the files over into `app` and `API` in their `/src` folders. These will not be tracked by git. Whenever changes are made to any utils, they have to be copied again. For this, I created a helper script [`cp_shrd.sh`](/cp_shrd.sh), which copies the files as needed 
+```sh
+#!/bin/bash
+
+echo "Copying shared files to app and API"
+cp -r ./utils ./app/src
+cp -r ./utils ./API/src
+```
+* I'm not entirely happy with this, but I don't want to spend any more of my saturday on this
+* I also created a [`secrets_template`](/secrets_template/) folder, to be used for copying as `cp secrets_template secrets`, and then filled out with the necessary secrets.

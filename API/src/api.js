@@ -1,7 +1,7 @@
 var createError = require('http-errors');
 const express = require('express');
 const fs = require('fs');
-const { pool, init_DB, query, execute } = require('../../utils/db');
+const { pool, init_DB, query, execute } = require('./utils/db');
 const bcrypt = require('bcrypt');
 
 // Configuration
@@ -25,7 +25,7 @@ app.use(express.json()); // allows json in http request
 app.use(express.urlencoded({ extended: false })); // same
 
 // Prometheus tracking
-const { prometheus, prometheusMiddleware } = require('../../utils/prometheus');
+const { prometheus, prometheusMiddleware } = require('./utils/prometheus');
 app.use(prometheusMiddleware);
 app.get('/metrics', async (req, res) => {
     res.set('Content-Type', prometheus.register.contentType);
