@@ -1,8 +1,8 @@
 const request = require('supertest');
 const assert = require('assert');
-const app = require('../app');
+const app = require('../../app');
 const { init_DB } = require('../utils/db');
-const { response } = require('../app');
+const { response } = require('../../app');
 
 
 

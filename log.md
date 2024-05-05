@@ -113,3 +113,9 @@ Error: cannot POST /login (500)
 * DigitalOcean now retrieves the images from docker-hub, implementing it on the CD pipeline
 
  
+### 05/05 - Author: mahf
+* Gonna do a refactor of the directory structure.
+* Would be nice with a structure, where each service is separated entirely.
+  * Will be an issue regarding shared code between app and api
+  * Solution: make a shared folder - I will use [`/utils`](/utils/).
+* Probably gonna have some issues with routings, but hopefully will be fine
