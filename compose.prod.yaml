@@ -8,7 +8,7 @@ services:
     env_file:
       - prod.env
     volumes:
-      - ../secrets:/express-docker/secrets
+      - ./secrets:/express-docker/secrets
 
   minitwit-api:
     container_name: API
@@ -18,4 +18,4 @@ services:
     env_file:
       - prod.env
     volumes:
-      - ../secrets:/express-docker/secrets
+      - ./secrets:/express-docker/secrets
