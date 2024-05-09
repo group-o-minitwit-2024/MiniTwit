@@ -28,10 +28,29 @@ if (run_type === 'compose') {
   throw new Error('Not implemented');
 }
 
-pool.connect(function (err) {
-  if (err) throw err;
-  console.log('Connected!');
-});
+let attempt = 0;
+const maxAttempts = 5;
+
+function connectWithRetry() {
+  pool.connect(function (err, client, done) {
+    if (err) {
+      if (attempt < maxAttempts) {
+        attempt++;
+        console.log(`Connection attempt ${attempt} failed. Retrying...`);
+        return setTimeout(connectWithRetry, 1000); // Retry after 1 second
+      }
+      throw err;
+    }
+
+    console.log('Connected!');
+    // Release the connection when done (assuming 'done' is a callback)
+    done();
+    // Your code using the client goes here
+  });
+}
+
+connectWithRetry();
+
 
 // Function to initialize the database tables
 async function init_DB() {
