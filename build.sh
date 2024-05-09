@@ -5,4 +5,4 @@ echo "Building docker image for minitwit"
 docker build -t minitwit ./app
 
 echo "Building docker image for minitwit-api"
-docker build -t minitwit ./API
+docker build -t minitwit-api ./API
