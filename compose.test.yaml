@@ -2,7 +2,7 @@ services:
 
   minitwit:
     container_name: MiniTwitTests
-    build: ./app
+    image: minitwit:latest
     command: ["npm", "test"]
     env_file:
       - dev.env

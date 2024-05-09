@@ -3,7 +3,7 @@ const { Pool } = require('pg');
 
 // PostgreSQL
 let pool = new Pool();
-const SCHEMA_FILE_PATH = 'schema_postgres.sql';
+const SCHEMA_FILE_PATH = 'src/utils/schema_postgres.sql';
 let run_type = process.env.RUN_TYPE || 'dev';
 
 if (run_type === 'compose') {

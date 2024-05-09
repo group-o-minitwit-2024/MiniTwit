@@ -1,7 +1,7 @@
 const request = require('supertest');
 const assert = require('assert');
 const app = require('../app');
-const { connectDB, init_DB } = require('../../../utils/db');
+const { connectDB, init_DB } = require('../utils/db');
 const { response } = require('../app');
 
 // Setup Express app before each test, reset database and register a user
