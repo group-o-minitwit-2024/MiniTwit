@@ -7,20 +7,13 @@ const SCHEMA_FILE_PATH = 'schema_postgres.sql';
 let run_type = process.env.RUN_TYPE || 'dev';
 
 if (run_type === 'compose') {
-  new Promise(r => setTimeout(r, 3000)).then(() => {
-    pool = new Pool({
-      user: process.env.POSTGRES_USER,
-      host: 'db',
-      database: process.env.POSTGRES_DB,
-      password: process.env.POSTGRES_PASSWORD,
-      port: process.env.POSTGRES_PORT,
-    });
-
-  pool.connect(function (err) {
-    if (err) throw err;
-    console.log('Connected!');
+  pool = new Pool({
+    user: process.env.POSTGRES_USER,
+    host: 'db',
+    database: process.env.POSTGRES_DB,
+    password: process.env.POSTGRES_PASSWORD,
+    port: process.env.POSTGRES_PORT,
   });
-  }) 
     
 } else if (run_type === 'prod') {
   const ca_file = fs.readFileSync('/express-docker/secrets/ca-certificate.crt');
@@ -30,15 +23,15 @@ if (run_type === 'compose') {
     
   pool = new Pool(connectionstring);
 
-  pool.connect(function (err) {
-    if (err) throw err;
-    console.log('Connected!');
-  });
-
 } else if (run_type === 'dev') {
   // IMPLEMENT ME
   throw new Error('Not implemented');
 }
+
+pool.connect(function (err) {
+  if (err) throw err;
+  console.log('Connected!');
+});
 
 // Function to initialize the database tables
 async function init_DB() {

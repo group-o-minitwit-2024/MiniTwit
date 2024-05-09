@@ -9,6 +9,9 @@ services:
     networks:
       - prom_net
       - db_net
+    depends_on:
+      db:
+        condition: service_healthy
 
   minitwit-api:
     container_name: API
@@ -20,6 +23,10 @@ services:
     networks:
       - prom_net
       - db_net
+    depends_on:
+      db:
+        condition: service_healthy
+
   db:
     image: postgres:alpine3.19
     env_file:
@@ -30,6 +37,11 @@ services:
       - "5432:5432"
     networks:
       - db_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 3s
+      timeout: 3s
+      retries: 3
 
 networks:
   db_net:
