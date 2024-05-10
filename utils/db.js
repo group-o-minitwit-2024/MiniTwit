@@ -1,6 +1,11 @@
 const fs = require('fs');
 const { Pool } = require('pg');
 
+// Import the sequlize functionality
+const { Account, Message, Follower } = require('../sequilize.js');
+const { Sequelize } = require('sequelize');
+
+
 // PostgreSQL
 let pool = new Pool();
 const SCHEMA_FILE_PATH = 'schema_postgres.sql';
@@ -61,8 +66,13 @@ const execute = async (sql, params = []) => {
 };
 
 const get_user_id = async (username) => {
-  const user = await query('SELECT user_id FROM account WHERE username = $1', [username], true);
-  return user ? user.user_id : null;
+    const user = await Account.findOne({
+        attributes: ['user_id'],
+        where: {
+          username: username
+        }
+      });
+    return user ? user.user_id : null;
 };
 
 
