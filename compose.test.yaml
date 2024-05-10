@@ -2,9 +2,8 @@ services:
 
   minitwit:
     container_name: MiniTwitTests
-    build: 
-      context: ./
-      dockerfile: Dockerfile.test
+    image: minitwit:latest
+    command: ["npm", "test"]
     env_file:
       - dev.env
     depends_on:
@@ -12,16 +11,15 @@ services:
         condition: service_healthy
 
   db:
-    container_name: db
-    build:
-      context: ./
-      dockerfile: Dockerfile.pg
+    image: postgres:alpine3.19
     env_file:
       - dev.env
+    volumes:
+      - ./utils/schema_postgres.sql:/docker-entrypoint-initdb.d/schema_postgres.sql 
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 3s
       timeout: 3s
       retries: 3

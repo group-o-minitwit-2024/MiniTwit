@@ -2,6 +2,51 @@
 
 Hello Mom 👋
 
+## Project overview
+This repo contains code for both the MiniTwit [`app`](/app/) and [`api`](/API/). [`utils`](/utils/) contains shared code, needed to run both services. It is not included in the services, so it needs be copied in their respective service folders. This can be done as 
+```
+cp -r ./utils ./app/src
+cp -r ./utils ./API/src
+```
+Alternatively, run [`cp_shrd.sh`](/cp_shrd.sh) which does precisely this.
+
+### Build and run project
+The project is built and run using _Docker_. [`app`](/app/) and [`api`](/API/) both contain _Dockerfiles_ for building the respective services. To build first copy the shared files and then build, run [`build.sh`](/build.sh). 
+
+To run the application, we use _docker compose_. Both services require a [_PostgresSQL_](https://www.postgresql.org/) database for storing data. When running in development mode, this database is run locally, whereas in production, it connects to an existing production database. To run til locally, first build the required _app_ and _API_ docker images (most easily done with [`build.sh`](/build.sh)).
+```
+docker build -t minitwit ./app
+docker build -t minitwit-api ./API
+```
+Then, the entire stack can be run in development mode with 
+```
+docker compose -f compose.dev.yaml up
+```
+
+The _app_ runs on port 5000 and _api_ runs on 5001. 
+
+### Run in production
+To run the service in production, [`compose.prod.yaml`](/compose.prod.yaml) should be used. It uses bind volumes to access secrets required for running. 
+
+#### Secrets
+Secrets are configured in a `/secrets/`. This folder should share the same structure as [`/secrets_template/`](/secrets_template/). The easiest way of setting it up is running 
+```
+cp secrets_template secrets
+```
+and then filling out the secrets files.
+```
+secrets/
+├── ca-certificate.crt
+└── db_connectionstring.json
+```
+
+## Running simulator locally
+Running locally, the simulator is done through the Python3 file `minitwit_simulator.py` located in `/API/simulator/`.
+The easiest way of running the simulator is running 
+```
+cd API/simulator
+python3 minitwit_simulator.py http://localhost:5001
+```
 
 ## Monitoring
 Monitoring of MiniTwit is handled as an external service with `Prometheus` and visualized with `Grafana`, and can be found [here](https://github.com/group-o-minitwit-2024/MiniTwit-monitoring). It connects to `minitwit` and `minitwit-api` on the server ip address in production, or through the docker network `prom_net` in development. 
@@ -22,6 +67,9 @@ Run lint checking with
 npx eslint FILE_NAME
 ```
 Use `--fix` flag for applying lint changes to file.
+
+### Dockerfile linting
+Write me
 
 ## What are we missing?
 | # | Date | Time | Lecturer | Preparation | Topic | Exercises | Project Work | Done? | Notes |

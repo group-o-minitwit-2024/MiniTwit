@@ -1,18 +1,18 @@
 const createError = require('http-errors');
 const express = require('express');
 const fs = require('fs');
-const { pool, init_DB, query, execute } = require('../utils/db');
+const { pool, init_DB, query, execute } = require('./utils/db');
 const bcrypt = require('bcrypt');
 
 // Configuration
 const DEBUG = true;
 
 // Import the sequlize functionality
-const { Account, Message, Follower } = require('../sequilize.js');
+const { Account, Message, Follower } = require('./utils/sequilize');
 const { Sequelize } = require('sequelize');
 
 
-fs.unlink("./API/latest_processed_sim_action_id.txt", (err) => {
+fs.unlink("./latest_processed_sim_action_id.txt", (err) => {
     if (err && err.code !== 'ENOENT') {
         console.error('Error deleting latest processed file:', err);
     }
@@ -30,7 +30,7 @@ app.use(express.json()); // allows json in http request
 app.use(express.urlencoded({ extended: false })); // same
 
 // Prometheus tracking
-const { prometheus, prometheusMiddleware } = require('../utils/prometheus');
+const { prometheus, prometheusMiddleware } = require('./utils/prometheus');
 app.use(prometheusMiddleware);
 app.get('/metrics', async (req, res) => {
     res.set('Content-Type', prometheus.register.contentType);
@@ -51,7 +51,7 @@ function not_req_from_simulator(req) {
 async function update_latest(request) {
     const parsed_command_id = request.query.latest;
     if (parsed_command_id !== -1) {
-        fs.writeFile("./API/latest_processed_sim_action_id.txt", parsed_command_id.toString(), (err) => {
+        fs.writeFile("./latest_processed_sim_action_id.txt", parsed_command_id.toString(), (err) => {
             if (err) {
                 console.error('Error writing file:', err);
             }
@@ -63,7 +63,7 @@ async function update_latest(request) {
 
 // Get the latest value
 app.get('/latest', async (req, res) => {
-    fs.readFile('./API/latest_processed_sim_action_id.txt', 'utf8', (err, content) => {
+    fs.readFile('./latest_processed_sim_action_id.txt', 'utf8', (err, content) => {
         if (err) {
             res.json({ latest: -1 });
         } else {

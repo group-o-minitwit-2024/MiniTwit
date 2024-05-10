@@ -14,7 +14,7 @@ const MD5 = require('crypto-js/md5');
 const { pool, init_DB, query, execute, get_user_id} = require('./utils/db');
 
 // Import the sequlize functionality
-const { Account, Message, Follower } = require('./sequilize.js');
+const { Account, Message, Follower } = require('./utils/sequilize');
 const { Sequelize } = require('sequelize');
 
 

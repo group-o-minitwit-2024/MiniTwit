@@ -2,13 +2,13 @@ const fs = require('fs');
 const { Pool } = require('pg');
 
 // Import the sequlize functionality
-const { Account, Message, Follower } = require('../sequilize.js');
+const { Account, Message, Follower } = require('./sequilize');
 const { Sequelize } = require('sequelize');
 
 
 // PostgreSQL
 let pool = new Pool();
-const SCHEMA_FILE_PATH = 'schema_postgres.sql';
+const SCHEMA_FILE_PATH = 'src/utils/schema_postgres.sql';
 let run_type = process.env.RUN_TYPE || 'dev';
 
 if (run_type === 'compose') {
@@ -33,10 +33,29 @@ if (run_type === 'compose') {
   throw new Error('Not implemented');
 }
 
-pool.connect(function (err) {
-  if (err) throw err;
-  console.log('Connected!');
-});
+let attempt = 0;
+const maxAttempts = 5;
+
+function connectWithRetry() {
+  pool.connect(function (err, client, done) {
+    if (err) {
+      if (attempt < maxAttempts) {
+        attempt++;
+        console.log(`Connection attempt ${attempt} failed. Retrying...`);
+        return setTimeout(connectWithRetry, 1000); // Retry after 1 second
+      }
+      throw err;
+    }
+
+    console.log('Connected!');
+    // Release the connection when done (assuming 'done' is a callback)
+    done();
+    // Your code using the client goes here
+  });
+}
+
+connectWithRetry();
+
 
 // Function to initialize the database tables
 async function init_DB() {
