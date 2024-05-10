@@ -24,7 +24,7 @@ describe('Endpoint /login', () => {
 
     it('should successfully login a registered user', async () => { 
         // attempt login that should be successful
-        const response = await agent
+        await agent
             .post('/login')
             .send({
                 username: 'someUser',
