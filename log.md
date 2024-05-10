@@ -198,3 +198,61 @@ cp -r ./utils ./API/src
 ```
 * I'm not entirely happy with this, but I don't want to spend any more of my saturday on this
 * I also created a [`secrets_template`](/secrets_template/) folder, to be used for copying as `cp secrets_template secrets`, and then filled out with the necessary secrets.
+
+# 10/05 - Author: mahf, mkrh
+We are gonna do docker swarm. And this time, it will work!!!! We are working from *repo-spring-cleaning*, so we are definetily gonna have merge issues, but ¯\\\_(ツ)\_/¯
+
+* start by doing it manually, probably gonna move to *terraform* at some point
+* start by setting up Digital Ocean CLI following [this guide](https://docs.digitalocean.com/reference/doctl/how-to/install/)
+* Create a test droplet as
+```
+doctl compute droplet create --region ams --image ubuntu-23-10-x64 --size s-1vcpu-1gb test-droplet
+```
+* Delete it again with 
+```
+doctl compute droplet delete test-droplet
+```
+* Now, we are ready to try *docker swarm*
+* First configure ssh keys to be used. This is copied from [here](https://github.com/itu-devops/itu-minitwit-docker-swarm-teraform/tree/master)
+```
+mkdir ssh_key && ssh-keygen -t rsa -b 4096 -q -N '' -f ./ssh_key/do
+```
+Add the keys to digital ocean
+```
+doctl compute ssh-key import do_key --public-key-file ssh_key/do.pub
+```
+The fingerprint can be retrieved with 
+```
+doctl compute ssh-key list
+```
+We need some more automated way of getting this later, if we are gonna do it with shell scripts
+* Start by creating a swarm leader
+```
+doctl compute droplet create --region ams --image ubuntu-23-10-x64 --size s-1vcpu-1gb --ssh-keys YOUR_FINGERPRINT  minitwit-swarm-leader
+```
+* get the ip with
+```
+doctl compute droplet list
+```
+* ssh into the new droplet with 
+```
+ssh -i ssh_key/do root@178.62.202.172
+```
+* The droplet does not have docker, so try with `docker-20-04` image instead
+```
+doctl compute droplet create --region ams --image ubuntu-23-10-x64 --size s-1vcpu-1gb --ssh-keys d2:18:2f:98:9b:11:fc:dd:00:24:9c:dd:df:4e:12:ab  minitwit-swarm-leader
+```
+* Init docker swarm (with public ip 167.71.69.109) as
+```
+ssh -i ssh_key/do root@167.71.69.109 -t "docker swarm init --advertise-addr 167.71.69.109"
+```
+This outputs 
+```
+Swarm initialized: current node (ui0xfuxtbhiyqlu36obwsws6l) is now a manager.
+
+To add a worker to this swarm, run the following command:
+
+    docker swarm join --token SWMTKN-1-644fhu5y734zp4p3nb0dwpdcbfihumd4h2el5tcoxflapbdgun-2zpvt08d0ym6ne8oy3ub6yox4 167.71.69.109:2377
+
+To add a manager to this swarm, run 'docker swarm join-token manager' and follow the instructions.
+```
