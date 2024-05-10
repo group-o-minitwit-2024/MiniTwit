@@ -101,19 +101,21 @@ class MiniTwitTestCase(unittest.TestCase):
 
     def test_timelines(self):
         """Make sure that timelines work"""
+        MESSAGE_BY_FOO = 'the message by foo'
+        MESSAGE_BY_BAR = 'the message by bar'
         self.register_and_login('foo', 'default')
-        self.add_message('the message by foo')
+        self.add_message(MESSAGE_BY_FOO)
         self.logout()
         self.register_and_login('bar', 'default')
-        self.add_message('the message by bar')
+        self.add_message(MESSAGE_BY_BAR)
         rv = self.app.get('/public')
-        assert 'the message by foo' in rv.data.decode('utf-8')
-        assert 'the message by bar' in rv.data.decode('utf-8')
+        assert MESSAGE_BY_FOO in rv.data.decode('utf-8')
+        assert MESSAGE_BY_BAR in rv.data.decode('utf-8')
 
         # bar's timeline should just show bar's message
         rv = self.app.get('/')
-        assert 'the message by foo' not in rv.data.decode('utf-8')
-        assert 'the message by bar' in rv.data.decode('utf-8')
+        assert MESSAGE_BY_FOO not in rv.data.decode('utf-8')
+        assert MESSAGE_BY_BAR in rv.data.decode('utf-8')
 
         # now let's follow foo
         rv = self.app.get('/foo/follow', follow_redirects=True)
@@ -121,23 +123,23 @@ class MiniTwitTestCase(unittest.TestCase):
 
         # we should now see foo's message
         rv = self.app.get('/')
-        assert 'the message by foo' in rv.data.decode('utf-8')
-        assert 'the message by bar' in rv.data.decode('utf-8')
+        assert MESSAGE_BY_FOO in rv.data.decode('utf-8')
+        assert MESSAGE_BY_BAR in rv.data.decode('utf-8')
 
         # but on the user's page we only want the user's message
         rv = self.app.get('/bar')
-        assert 'the message by foo' not in rv.data.decode('utf-8')
-        assert 'the message by bar' in rv.data.decode('utf-8')
+        assert MESSAGE_BY_FOO not in rv.data.decode('utf-8')
+        assert MESSAGE_BY_BAR in rv.data.decode('utf-8')
         rv = self.app.get('/foo')
-        assert 'the message by foo' in rv.data.decode('utf-8')
-        assert 'the message by bar' not in rv.data.decode('utf-8')
+        assert MESSAGE_BY_FOO in rv.data.decode('utf-8')
+        assert MESSAGE_BY_BAR not in rv.data.decode('utf-8')
 
         # now unfollow and check if that worked
         rv = self.app.get('/foo/unfollow', follow_redirects=True)
         assert 'You are no longer following &#34;foo&#34;' in rv.data.decode('utf-8')
         rv = self.app.get('/')
-        assert 'the message by foo' not in rv.data.decode('utf-8')
-        assert 'the message by bar' in rv.data.decode('utf-8')
+        assert MESSAGE_BY_FOO not in rv.data.decode('utf-8')
+        assert MESSAGE_BY_BAR in rv.data.decode('utf-8')
 
 
 if __name__ == '__main__':

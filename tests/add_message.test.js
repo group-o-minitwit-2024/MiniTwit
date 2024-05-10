@@ -13,7 +13,7 @@ describe('Endpoint /add_message', () => {
         agent = request.agent(app);
         await init_DB();
 
-        const register_response = await agent
+        await agent
             .post('/register')
             .send({
                 username: 'test',
@@ -22,7 +22,7 @@ describe('Endpoint /add_message', () => {
                 email: 'test@test.test'
             });
 
-        const login_response = await agent
+        await agent
             .post('/login')
             .send({
                 username: 'test',
@@ -31,7 +31,7 @@ describe('Endpoint /add_message', () => {
     });
 
     it('should succesfully add a message', async () => {
-        const response = await agent
+        await agent
             .post('/add_message')
             .send({
                 text: 'Hello mom 👋'

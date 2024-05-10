@@ -1,17 +1,16 @@
-var createError = require('http-errors');
-var express = require('express');
+const createError = require('http-errors');
+const express = require('express');
 const fs = require('fs');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+let path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
 // Refactored packages
 const flash = require('express-flash');
 const sqlite3 = require('sqlite3').verbose();
 const session = require('express-session');
-var expressLayouts = require('express-ejs-layouts');
+const expressLayouts = require('express-ejs-layouts');
 const bcrypt = require('bcrypt');
 const MD5 = require('crypto-js/md5');
-//const { connect_DB, init_DB, query, execute, get_user_id} = require('./utils/dbUtils');
 const { pool, init_DB, query, execute, get_user_id} = require('./utils/db');
 
 // Import the sequlize functionality
@@ -24,11 +23,10 @@ const { Sequelize } = require('sequelize');
 const { prometheus, prometheusMiddleware } = require('./utils/prometheus');
 
 // Configuration
-const DATABASE = './minitwit.db';
 const PER_PAGE = 30;
 const SECRET_KEY = 'development key';
 
-var app = express();
+let app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -56,7 +54,6 @@ app.use(prometheusMiddleware);
 
 app.locals.user = null; // just forces layout.ejs to render. Should be refactored properly.
 
-//init_DB();
 
 const format_datetime = (timestamp) => {
   return new Date(timestamp * 1000).toISOString().replace(/T/, ' ').replace(/\..+/, '');
@@ -300,7 +297,7 @@ app.get('/:username', async (req, res) => {
 
     // Check if the logged-in user follows the profile user
     if (req.session.user) {
-      const follower = await Follower.findOne({
+      await Follower.findOne({
         where: { who_id: req.session.user.user_id, whom_id: profile_user.user_id }
       });
     }
@@ -422,7 +419,6 @@ app.use(function (err, req, res, next) {
 app.listen(5000, () => {
   console.log('Minitwit running at port :5000')
 })
-
 
 module.exports = app;
 
