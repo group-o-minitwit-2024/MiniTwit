@@ -1,4 +1,4 @@
-var createError = require('http-errors');
+const createError = require('http-errors');
 const express = require('express');
 const fs = require('fs');
 const { pool, init_DB, query, execute } = require('./utils/db');
@@ -6,6 +6,11 @@ const bcrypt = require('bcrypt');
 
 // Configuration
 const DEBUG = true;
+
+// Import the sequlize functionality
+const { Account, Message, Follower } = require('./utils/sequilize');
+const { Sequelize } = require('sequelize');
+
 
 fs.unlink("./latest_processed_sim_action_id.txt", (err) => {
     if (err && err.code !== 'ENOENT') {
@@ -81,11 +86,11 @@ app.post('/register', async (req, res) => {
         error = "You have to enter a password";
     } else {
         const hash_password = bcrypt.hashSync(request_data.pwd, 10)
-        await execute(`INSERT INTO account (username, email, pw_hash) VALUES ($1, $2, $3)`, [
-            request_data.username,
-            request_data.email,
-            hash_password,
-        ]);
+        await Account.create({
+            username: request_data.username,
+            email: request_data.email,
+            pw_hash: hash_password
+          });
     }
     if (error) {
         res.status(400).json({ status: 400, error_msg: error });
@@ -107,16 +112,29 @@ app.get('/msgs/:username', async (req, res) => {
     const username = req.params.username;
     const no_msgs = parseInt(req.query.no) || 100; // Default to 100 if 'no' parameter is not provided
 
-    const user = await query("SELECT user_id FROM account where username = $1", [username], true);
+    const user = await Account.findOne({
+        attributes: ['user_id'],
+        where: {
+          username: username
+        }
+      });
 
-    const sql = `SELECT message.*, account.* FROM message JOIN account 
-                ON account.user_id = message.author_id 
-                WHERE account.user_id = $1 
-                ORDER BY message.pub_date DESC 
-                LIMIT $2`;
 
-
-    const messages = await query(sql, [user.user_id, no_msgs]);
+    // Refactored using Sequelize
+    const messages = await Message.findAll({
+        attributes: ['message_id', 'author_id', 'text', 'pub_date'],
+        include: [{
+        model: Account,
+        attributes: ['user_id', 'username', 'email']
+        }],
+        where: {
+        '$Account.user_id$': user.user_id
+        },
+        order: [['pub_date', 'DESC']],
+        limit: no_msgs,
+        raw: true
+    });
+    
     const filtered_msgs = messages.map(msg => ({
         content: msg.text,
         pub_date: msg.pub_date,
@@ -137,11 +155,18 @@ app.post('/msgs/:username', async (req, res) => {
     const username = req.params.username;
     const { content } = req.body;
 
-    const user = await query("SELECT user_id FROM account where username = $1", [username], true);
-
-    const sql = `INSERT INTO message (author_id, text, pub_date, flagged) VALUES ($1, $2, $3, 0)`;
-
-    await execute(sql, [user.user_id, content, Math.floor(Date.now() / 1000)]);
+    const user = await Account.findOne({
+        attributes: ['user_id'],
+        where: {
+          username: username
+        }
+      });
+      const newMessage = await Message.create({
+        author_id: user.user_id,
+        text: content,
+        pub_date: Math.floor(Date.now() / 1000),
+        flagged: 0
+      });
     res.sendStatus(204);
 })
 
@@ -157,13 +182,25 @@ app.get('/msgs', async (req, res) => {
     const no_msgs = parseInt(req.query.no, 10) || 100;
 
     // Query the database to get messages
-    const messages = await query(`
-        SELECT message.*, account.* FROM message
-        INNER JOIN account ON message.author_id = account.user_id
-        WHERE message.flagged = 0
-        ORDER BY message.pub_date DESC
-        LIMIT $1
-    `, [no_msgs]);
+    const messages = await Message.findAll({
+        attributes: [
+          'message_id',
+          'author_id',
+          'text',
+          'pub_date',
+          [Sequelize.literal('"Account"."user_id"'), 'user_id'],
+          [Sequelize.literal('"Account"."username"'), 'username'],
+          [Sequelize.literal('"Account"."email"'), 'email']
+        ],
+        include: [{
+          model: Account,
+          attributes: [], // Don't fetch any additional attributes from the Account model
+        }],
+        where: { flagged: 0 },
+        order: [['pub_date', 'DESC']],
+        limit: no_msgs,
+        raw: true
+      });
 
     const filtered_msgs = messages.map(msg => ({
         content: msg.text,
@@ -175,7 +212,6 @@ app.get('/msgs', async (req, res) => {
 
 });
 
-
 // -------------- Route to get the followers of a given user ------------------
 app.get('/fllws/:username', async (req, res) => {
     await update_latest(req);
@@ -186,27 +222,41 @@ app.get('/fllws/:username', async (req, res) => {
     }
 
     const username = req.params.username;
-    const user = await query("SELECT user_id FROM account where username = ?", [username], true);
+    const user = await Account.findOne({
+        attributes: ['user_id'],
+        where: {
+          username: username
+        }
+    });
     if (!user) {
-        return res.status(404);
+        return res.status(404).send("User not found");
     }
 
     const no_followers = req.query.no || 100;
 
-    const sql = `
-            SELECT account.username
-            FROM account
-            INNER JOIN follower ON follower.whom_id = account.user_id
-            WHERE follower.who_id = $1
-            LIMIT $2`;
+    try {
+        const followers = await Follower.findAll({
+            attributes: [],
+            where: {
+                who_id: user.user_id
+            },
+            include: [{
+                model: Account,
+                attributes: ['username'],
+                as: 'Follower',
+                through: { attributes: [] } // Exclude the join table attributes
+            }],
+            limit: no_followers
+        });
 
+        const follower_names = followers.map(follower => follower.Follower.username);
 
-    const followers = await query(sql, [user.user_id, no_followers]);
-    const follower_names = followers.map(follower => follower.username);
-
-    return res.json({ follows: follower_names });
+        return res.json({ follows: follower_names });
+    } catch (error) {
+        console.error('Error fetching followers:', error);
+        return res.status(500).send('Internal Server Error');
+    }
 });
-
 
 // ------------ Route to add/delete a follower --------------
 app.post('/fllws/:username', async (req, res) => {
@@ -218,41 +268,64 @@ app.post('/fllws/:username', async (req, res) => {
     }
 
     const username = req.params.username;
-    const user = await query("SELECT user_id FROM account where username = $1", [username], true);
+    const user = await Account.findOne({
+        attributes: ['user_id'],
+        where: {
+          username: username
+        }
+    });
     if (!user) {
-        return res.status(404);
+        return res.status(404).send('User not found');
     }
 
     const { follow, unfollow } = req.body;
 
-    // ------------ CASE FOLLOW USER ------------------
-    if (follow) {
-        const follows_user = await query("SELECT user_id FROM account where username = $1", [follow], true);
-        if (!follows_user) {
-            return res.status(404).send('User to follow not found');
-        }
+    try {
+        // ------------ CASE FOLLOW USER ------------------
+        if (follow) {
+            const follows_user = await Account.findOne({
+                attributes: ['user_id'],
+                where: {
+                    username: follow
+                }
+            });
+            if (!follows_user) {
+                return res.status(404).send('User to follow not found');
+            }
 
-        const sql = `INSERT INTO follower (who_id, whom_id) VALUES ($1, $2)`;
-        await execute(sql, [user.user_id, follows_user.user_id]);
-        return res.sendStatus(204);
+            await Follower.create({
+                who_id: user.user_id,
+                whom_id: follows_user.user_id
+            });
+            return res.sendStatus(204);
 
         // ------------ CASE UNFOLLOW USER ------------------
-    } else if (unfollow) {
-        const unfollows_user = await query("SELECT user_id FROM account where username = $1", [unfollow], true);
-        if (!unfollows_user) {
-            return res.status(404).send('User to unfollow not found');
+        } else if (unfollow) {
+            const unfollows_user = await Account.findOne({
+                attributes: ['user_id'],
+                where: {
+                    username: unfollow
+                }
+            });
+            if (!unfollows_user) {
+                return res.status(404).send('User to unfollow not found');
+            }
+
+            await Follower.destroy({
+                where: {
+                    who_id: user.user_id,
+                    whom_id: unfollows_user.user_id
+                }
+            });
+            return res.sendStatus(204);
+        } else {
+            return res.status(400).send('Invalid request');
         }
-
-        const sql = `DELETE FROM follower WHERE who_id = $1 AND whom_id = $2`;
-        await execute(sql, [user.user_id, unfollows_user.user_id]);
-        return res.sendStatus(204);
-
-
-    } else {
-        return res.status(400).send('Invalid request');
+    } catch (error) {
+        console.error('Error processing follow/unfollow request:', error);
+        return res.status(500).send('Internal Server Error');
     }
-})
-
+});
 
 
 app.listen(5001, () => {

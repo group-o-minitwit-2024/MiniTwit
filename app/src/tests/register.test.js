@@ -32,7 +32,7 @@ describe('Endpoint /register', () => {
     });
 
     it('should fail due to duplicate username', async () => {
-        const response1 = await agent
+        await agent
             .post('/register')
             .send({
                 username: 'someUser',

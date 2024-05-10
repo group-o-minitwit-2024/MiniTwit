@@ -1,18 +1,21 @@
-var createError = require('http-errors');
-var express = require('express');
+const createError = require('http-errors');
+const express = require('express');
 const fs = require('fs');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+let path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
 // Refactored packages
 const flash = require('express-flash');
 const sqlite3 = require('sqlite3').verbose();
 const session = require('express-session');
-var expressLayouts = require('express-ejs-layouts');
+const expressLayouts = require('express-ejs-layouts');
 const bcrypt = require('bcrypt');
 const MD5 = require('crypto-js/md5');
-//const { connect_DB, init_DB, query, execute, get_user_id} = require('./utils/dbUtils');
 const { pool, init_DB, query, execute, get_user_id} = require('./utils/db');
+
+// Import the sequlize functionality
+const { Account, Message, Follower } = require('./utils/sequilize');
+const { Sequelize } = require('sequelize');
 
 
 
@@ -20,11 +23,10 @@ const { pool, init_DB, query, execute, get_user_id} = require('./utils/db');
 const { prometheus, prometheusMiddleware } = require('./utils/prometheus');
 
 // Configuration
-const DATABASE = './minitwit.db';
 const PER_PAGE = 30;
 const SECRET_KEY = 'development key';
 
-var app = express();
+let app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -52,7 +54,6 @@ app.use(prometheusMiddleware);
 
 app.locals.user = null; // just forces layout.ejs to render. Should be refactored properly.
 
-//init_DB();
 
 const format_datetime = (timestamp) => {
   return new Date(timestamp * 1000).toISOString().replace(/T/, ' ').replace(/\..+/, '');
@@ -78,26 +79,43 @@ app.get('/', async (req, res) => {
 
     // Implement your logic here
     let user = null;
-    if (req.session && req.session.user) {
-      user = await query('SELECT * FROM account WHERE user_id = $1', [req.session.user.user_id]);
+    if (req.session?.user) {
+      user = await Account.findOne({ where: { user_id: req.session.user.user_id } });
+
     }
 
     if (!user) {
       return res.redirect('/public');
     }
 
-    const offset = req.query.offset || 0;
-    const messages = await query(`
-        SELECT message.*, account.* FROM message
-        INNER JOIN account ON message.author_id = account.user_id
-        WHERE message.flagged = 0 AND (
-            account.user_id = $1 OR
-            account.user_id IN (SELECT whom_id FROM follower WHERE who_id = $2)
-        )
-        ORDER BY message.pub_date DESC
-        LIMIT $3
-    `, [req.session.user.user_id, req.session.user.user_id, PER_PAGE]);
-
+    // ey hvor fakkin lekker SEQUILIZE ER huh så nemt at forstå, ficking lort  
+    const messages = await Message.findAll({
+      attributes: [
+        'message_id',
+        'author_id',
+        'text',
+        'pub_date',
+        [Sequelize.literal('"Account"."user_id"'), 'user_id'],
+        [Sequelize.literal('"Account"."username"'), 'username'],
+        [Sequelize.literal('"Account"."email"'), 'email']
+      ],
+      include: [{
+        model: Account,
+        attributes: [], // Don't fetch any additional attributes from the Account model
+        where: {
+          user_id: {
+            [Sequelize.Op.or]: [req.session.user.user_id,
+              Sequelize.literal(`"user_id" IN (SELECT "whom_id" FROM "follower" WHERE "who_id" = ${req.session.user.user_id})`)
+            ]
+          }
+        }
+      }],
+      order: [['pub_date', 'DESC']],
+      limit: PER_PAGE,
+      raw: true
+    });
+        
+    
     res.render('timeline.ejs', { user: req.session.user, messages, title: "My Timeline", flashes: req.flash('success'), endpoint: "user_timline" });
   } catch (error) {
     console.error("Error:", error);
@@ -116,14 +134,28 @@ app.get('/public', async (req, res) => {
   // Implement your logic here
   try {
     // Implement your logic here
-    const messages = await query(`
-        SELECT message.*, account.* FROM message
-        INNER JOIN account ON message.author_id = account.user_id
-        WHERE message.flagged = 0
-        ORDER BY message.pub_date DESC
-        LIMIT $1
-    `, [PER_PAGE]);
-
+    const messages = await Message.findAll({
+      attributes: [
+        'message_id',
+        'author_id',
+        'text',
+        'pub_date',
+        [Sequelize.literal('"Account"."user_id"'), 'user_id'],
+        [Sequelize.literal('"Account"."username"'), 'username'],
+        [Sequelize.literal('"Account"."email"'), 'email']
+      ],
+      include: [{
+        model: Account,
+        attributes: [], // Don't fetch any additional attributes from the Account model
+      }],
+      where: {
+        flagged: 0,
+      },
+      order: [['pub_date', 'DESC']],
+      limit: PER_PAGE,
+      raw: true
+    });
+    
     res.render('timeline.ejs', { user: req.session.user, messages, title: "Public Timeline", flashes: req.flash('success'), endpoint: '' });
   } catch (error) {
     console.error("Error:", error);
@@ -163,9 +195,8 @@ app.post('/register', async (req, res) => {
 
     // Insert user into the database
     const hashedPassword = bcrypt.hashSync(password, 10);
-    //const userId = uuidv4(); // Generate a unique user ID
-    await execute('INSERT INTO account (username, email, pw_hash) VALUES ($1, $2, $3)',
-      [username, email, hashedPassword]);
+
+    await Account.create({ username: username, email: email, pw_hash: hashedPassword });
 
     req.flash('success', 'You were successfully registered and can login now');
     res.redirect('/login');
@@ -188,7 +219,7 @@ app.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
     // Query the user from the database
-    const user = await query('SELECT * FROM account WHERE username = $1', [username], true);
+    const user = await Account.findOne({ where: { username: username } });
 
     if (!user || user.length === 0) {
       return res.render('login.ejs', { error: 'Invalid username', flashes: req.flash('success') });
@@ -234,11 +265,13 @@ app.post('/add_message', async (req, res) => {
   }
   try {
     // Insert message into the database
-    const result = await execute(
-      'INSERT INTO message (author_id, text, pub_date, flagged) VALUES ($1, $2, $3, 0)',
-      [req.session.user.user_id, text, Math.floor(Date.now() / 1000)]
-    );
-
+    await Message.create({
+      author_id: req.session.user.user_id,
+      text: text,
+      pub_date: Math.floor(Date.now() / 1000),
+      flagged: 0
+    });
+    
     req.flash('success', 'Your message was recorded');
     res.redirect('/');
   } catch (error) {
@@ -249,8 +282,10 @@ app.post('/add_message', async (req, res) => {
 
 app.get('/:username', async (req, res) => {
   try {
-    // Retrieve the profile user from the database
-    let profile_user = await query("SELECT * FROM account where username = $1", [req.params.username], true);
+    // Retrieve the profile user from the databas
+    let profile_user = await Account.findOne({
+      where: { username: req.params.username }
+    });
     
 
     // If profile_user is not found, return 404
@@ -262,24 +297,32 @@ app.get('/:username', async (req, res) => {
 
     // Check if the logged-in user follows the profile user
     if (req.session.user) {
-      const follower = await query(
-        'SELECT 1 FROM follower WHERE who_id = $1 AND whom_id = $2',
-        [req.session.user.user_id, profile_user.user_id]
-      );
-
-      followed = follower.length > 0 ? true : false;
+      await Follower.findOne({
+        where: { who_id: req.session.user.user_id, whom_id: profile_user.user_id }
+      });
     }
 
     // Fetch messages for the profile user
-    const messages = await query(
-      `SELECT message.*, account.* FROM message JOIN account 
-       ON account.user_id = message.author_id 
-       WHERE account.user_id = $1 
-       ORDER BY message.pub_date DESC 
-       LIMIT $2`,
-      [profile_user.user_id, PER_PAGE]
-    );
-
+    const messages = await Message.findAll({
+      attributes: [
+        'message_id',
+        'author_id',
+        'text',
+        'pub_date',
+        [Sequelize.literal('"Account"."user_id"'), 'user_id'],
+        [Sequelize.literal('"Account"."username"'), 'username'],
+        [Sequelize.literal('"Account"."email"'), 'email']
+      ],
+      include: [{
+        model: Account,
+        attributes: [], // Don't fetch any additional attributes from the Account model
+        where: { user_id: profile_user.user_id }
+      }],
+      order: [['pub_date', 'DESC']],
+      limit: PER_PAGE,
+      raw: true
+    });
+    
     // Render the timeline template with messages and other data
     res.render('timeline.ejs', {
       messages: messages,
@@ -312,7 +355,12 @@ app.get('/:username/follow', async (req, res) => {
     }
 
     // Insert into follower table
-    await execute('insert into follower (who_id, whom_id) values ($1, $2)', [req.session.user.user_id, whom_id]);
+    //await execute('insert into follower (who_id, whom_id) values ($1, $2)', [req.session.user.user_id, whom_id]);
+    const newFollower = await Follower.create({
+      who_id: req.session.user.user_id,
+      whom_id: whom_id
+    });
+
     req.flash('success', `You are now following "${username}"`);
     res.redirect(`/${username}`);
   } catch (error) {
@@ -336,7 +384,14 @@ app.get('/:username/unfollow', async (req, res) => {
     }
 
     // Delete from follower table
-    await execute('delete from follower where who_id=$1 and whom_id=$2', [req.session.user.user_id, whom_id]);
+    //await execute('delete from follower where who_id=$1 and whom_id=$2', [req.session.user.user_id, whom_id]);
+    await Follower.destroy({
+      where: {
+        who_id: req.session.user.user_id,
+        whom_id: whom_id
+      }
+    });
+    
     req.flash('success', `You are no longer following "${username}"`);
     res.redirect(`/${username}`);
   } catch (error) {
@@ -364,7 +419,6 @@ app.use(function (err, req, res, next) {
 app.listen(5000, () => {
   console.log('Minitwit running at port :5000')
 })
-
 
 module.exports = app;
 

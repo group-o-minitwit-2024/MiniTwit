@@ -40,6 +40,14 @@ secrets/
 └── db_connectionstring.json
 ```
 
+## Running simulator locally
+Running locally, the simulator is done through the Python3 file `minitwit_simulator.py` located in `/API/simulator/`.
+The easiest way of running the simulator is running 
+```
+cd API/simulator
+python3 minitwit_simulator.py http://localhost:5001
+```
+
 ## Monitoring
 Monitoring of MiniTwit is handled as an external service with `Prometheus` and visualized with `Grafana`, and can be found [here](https://github.com/group-o-minitwit-2024/MiniTwit-monitoring). It connects to `minitwit` and `minitwit-api` on the server ip address in production, or through the docker network `prom_net` in development. 
 
