@@ -82,7 +82,7 @@ app.get('/', async (req, res) => {
 
     // Implement your logic here
     let user = null;
-    if (req.session && req.session.user) {
+    if (req.session?.user) {
       user = await Account.findOne({ where: { user_id: req.session.user.user_id } });
 
     }
@@ -90,8 +90,6 @@ app.get('/', async (req, res) => {
     if (!user) {
       return res.redirect('/public');
     }
-
-    const offset = req.query.offset || 0;
 
     // ey hvor fakkin lekker SEQUILIZE ER huh så nemt at forstå, ficking lort  
     const messages = await Message.findAll({
@@ -200,7 +198,6 @@ app.post('/register', async (req, res) => {
 
     // Insert user into the database
     const hashedPassword = bcrypt.hashSync(password, 10);
-    //const userId = uuidv4(); // Generate a unique user ID
 
     await Account.create({ username: username, email: email, pw_hash: hashedPassword });
 
@@ -271,7 +268,7 @@ app.post('/add_message', async (req, res) => {
   }
   try {
     // Insert message into the database
-    const message = await Message.create({
+    await Message.create({
       author_id: req.session.user.user_id,
       text: text,
       pub_date: Math.floor(Date.now() / 1000),
@@ -306,9 +303,6 @@ app.get('/:username', async (req, res) => {
       const follower = await Follower.findOne({
         where: { who_id: req.session.user.user_id, whom_id: profile_user.user_id }
       });
-      
-      const followed = !!follower;
-      
     }
 
     // Fetch messages for the profile user
