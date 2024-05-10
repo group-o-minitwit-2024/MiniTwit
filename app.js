@@ -301,22 +301,15 @@ app.get('/:username/follow', async (req, res) => {
 
     // Get whom_id from the database
     const username = req.params.username;
-
-    // Sanitize input to prevent SQL injection
-    const sanitizedUsername = sanitizeInput(username);
-
-    const whom_id = await get_user_id(sanitizedUsername);
+    const whom_id = await get_user_id(username);
     if (!whom_id) {
       return res.status(404).send('User not found');
     }
 
-    // Insert into follower table using parameterized queries to prevent SQL injection
+    // Insert into follower table
     await execute('insert into follower (who_id, whom_id) values ($1, $2)', [req.session.user.user_id, whom_id]);
     req.flash('success', `You are now following "${username}"`);
-    
-    // Redirect to the sanitized URL to prevent XSS attacks
-    const sanitizedUrl = sanitizeUrl(`/${sanitizedUsername}`);
-    res.redirect(sanitizedUrl);
+    res.redirect(`/${username}`);
   } catch (error) {
     console.error('Error:', error);
     res.status(500).send('Internal Server Error');
@@ -332,22 +325,15 @@ app.get('/:username/unfollow', async (req, res) => {
 
     // Get whom_id from the database
     const username = req.params.username;
-
-    // Sanitize input to prevent potential attacks
-    const sanitizedUsername = sanitizeInput(username);
-
-    const whom_id = await get_user_id(sanitizedUsername);
+    const whom_id = await get_user_id(username);
     if (!whom_id) {
       return res.status(404).send('User not found');
     }
 
-    // Delete from follower table using parameterized queries to prevent SQL injection
+    // Delete from follower table
     await execute('delete from follower where who_id=$1 and whom_id=$2', [req.session.user.user_id, whom_id]);
-    req.flash('success', `You are no longer following "${sanitizedUsername}"`);
-
-    // Redirect to the sanitized URL to prevent potential attacks
-    const sanitizedUrl = sanitizeUrl(`/${sanitizedUsername}`);
-    res.redirect(sanitizedUrl);
+    req.flash('success', `You are no longer following "${username}"`);
+    res.redirect(`/${username}`);
   } catch (error) {
     console.error('Error:', error);
     res.status(500).send('Internal Server Error');
@@ -373,36 +359,6 @@ app.use(function (err, req, res, next) {
 app.listen(5000, () => {
   console.log('Minitwit running at port :5000')
 })
-
-function sanitizeInput(input) {
-  // Replace single quotes with two single quotes to escape them in SQL queries
-  const sanitizedInput = input.replace(/'/g, "''");
-  return sanitizedInput;
-}
-
-function sanitizeUrl(url) {
-  // Regular expression to match potentially dangerous characters in the URL
-  const dangerousCharactersRegex = /[<>"'`]/g;
-
-  // Replace potentially dangerous characters with their HTML entity equivalents
-  const sanitizedUrl = url.replace(dangerousCharactersRegex, match => {
-    switch (match) {
-      case '<':
-        return '&lt;';
-      case '>':
-        return '&gt;';
-      case '"':
-        return '&quot;';
-      case "'":
-        return '&#39;';
-      case '`':
-        return '&#x60;';
-      default:
-        return match;
-    }
-  });
-  return sanitizedUrl;
-}
 
 module.exports = app;
 
