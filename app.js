@@ -1,17 +1,16 @@
-var createError = require('http-errors');
-var express = require('express');
+const createError = require('http-errors');
+const express = require('express');
 const fs = require('fs');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+let path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
 // Refactored packages
 const flash = require('express-flash');
 const sqlite3 = require('sqlite3').verbose();
 const session = require('express-session');
-var expressLayouts = require('express-ejs-layouts');
+const expressLayouts = require('express-ejs-layouts');
 const bcrypt = require('bcrypt');
 const MD5 = require('crypto-js/md5');
-//const { connect_DB, init_DB, query, execute, get_user_id} = require('./utils/dbUtils');
 const { pool, init_DB, query, execute, get_user_id} = require('./utils/db');
 
 
@@ -20,11 +19,10 @@ const { pool, init_DB, query, execute, get_user_id} = require('./utils/db');
 const { prometheus, prometheusMiddleware } = require('./utils/prometheus');
 
 // Configuration
-const DATABASE = './minitwit.db';
 const PER_PAGE = 30;
 const SECRET_KEY = 'development key';
 
-var app = express();
+let app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -52,7 +50,6 @@ app.use(prometheusMiddleware);
 
 app.locals.user = null; // just forces layout.ejs to render. Should be refactored properly.
 
-//init_DB();
 
 const format_datetime = (timestamp) => {
   return new Date(timestamp * 1000).toISOString().replace(/T/, ' ').replace(/\..+/, '');
@@ -78,7 +75,7 @@ app.get('/', async (req, res) => {
 
     // Implement your logic here
     let user = null;
-    if (req.session && req.session.user) {
+    if (req.session?.user) {
       user = await query('SELECT * FROM account WHERE user_id = $1', [req.session.user.user_id]);
     }
 
@@ -86,7 +83,6 @@ app.get('/', async (req, res) => {
       return res.redirect('/public');
     }
 
-    const offset = req.query.offset || 0;
     const messages = await query(`
         SELECT message.*, account.* FROM message
         INNER JOIN account ON message.author_id = account.user_id
@@ -163,7 +159,6 @@ app.post('/register', async (req, res) => {
 
     // Insert user into the database
     const hashedPassword = bcrypt.hashSync(password, 10);
-    //const userId = uuidv4(); // Generate a unique user ID
     await execute('INSERT INTO account (username, email, pw_hash) VALUES ($1, $2, $3)',
       [username, email, hashedPassword]);
 
@@ -234,7 +229,7 @@ app.post('/add_message', async (req, res) => {
   }
   try {
     // Insert message into the database
-    const result = await execute(
+    await execute(
       'INSERT INTO message (author_id, text, pub_date, flagged) VALUES ($1, $2, $3, 0)',
       [req.session.user.user_id, text, Math.floor(Date.now() / 1000)]
     );
@@ -267,7 +262,7 @@ app.get('/:username', async (req, res) => {
         [req.session.user.user_id, profile_user.user_id]
       );
 
-      followed = follower.length > 0 ? true : false;
+      followed = follower.length > 0;
     }
 
     // Fetch messages for the profile user
@@ -364,7 +359,6 @@ app.use(function (err, req, res, next) {
 app.listen(5000, () => {
   console.log('Minitwit running at port :5000')
 })
-
 
 module.exports = app;
 
