@@ -24,7 +24,7 @@ describe('Endpoint /login', () => {
 
     it('should successfully login a registered user', async () => { 
         // attempt login that should be successful
-        const response = await agent
+        await agent
             .post('/login')
             .send({
                 username: 'someUser',
@@ -42,7 +42,7 @@ describe('Endpoint /login', () => {
                 password: 'notDefault'
             });
         
-        errorMessage = 'Invalid password';
+        let errorMessage = 'Invalid password';
         assert(response.text.includes(errorMessage), 'Expected error message not found in the response');
     });
 

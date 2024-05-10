@@ -4,9 +4,9 @@ DROP TABLE IF EXISTS account;
 -- Create table user
 CREATE TABLE account (
   user_id SERIAL PRIMARY KEY,
-  username VARCHAR NOT NULL,
-  email VARCHAR NOT NULL,
-  pw_hash VARCHAR NOT NULL
+  username VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  pw_hash VARCHAR(255) NOT NULL
 );
 
 -- Drop table if exists follower
@@ -25,7 +25,7 @@ DROP TABLE IF EXISTS message;
 CREATE TABLE message (
   message_id SERIAL PRIMARY KEY,
   author_id INTEGER NOT NULL,
-  text VARCHAR NOT NULL,
+  text VARCHAR(255) NOT NULL,
   pub_date INTEGER,
   flagged INTEGER
 );
