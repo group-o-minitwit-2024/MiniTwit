@@ -42,7 +42,7 @@ describe('Endpoint /login', () => {
                 password: 'notDefault'
             });
         
-        errorMessage = 'Invalid password';
+        let errorMessage = 'Invalid password';
         assert(response.text.includes(errorMessage), 'Expected error message not found in the response');
     });
 

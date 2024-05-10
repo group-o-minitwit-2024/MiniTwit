@@ -1,14 +1,14 @@
-var createError = require('http-errors');
-var express = require('express');
+const createError = require('http-errors');
+const express = require('express');
 const fs = require('fs');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+let path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
 // Refactored packages
 const flash = require('express-flash');
 const sqlite3 = require('sqlite3').verbose();
 const session = require('express-session');
-var expressLayouts = require('express-ejs-layouts');
+const expressLayouts = require('express-ejs-layouts');
 const bcrypt = require('bcrypt');
 const MD5 = require('crypto-js/md5');
 //const { connect_DB, init_DB, query, execute, get_user_id} = require('./utils/dbUtils');
@@ -20,11 +20,10 @@ const { pool, init_DB, query, execute, get_user_id} = require('./utils/db');
 const { prometheus, prometheusMiddleware } = require('./utils/prometheus');
 
 // Configuration
-const DATABASE = './minitwit.db';
 const PER_PAGE = 30;
 const SECRET_KEY = 'development key';
 
-var app = express();
+let app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -306,15 +305,22 @@ app.get('/:username/follow', async (req, res) => {
 
     // Get whom_id from the database
     const username = req.params.username;
-    const whom_id = await get_user_id(username);
+
+    // Sanitize input to prevent SQL injection
+    const sanitizedUsername = sanitizeInput(username);
+
+    const whom_id = await get_user_id(sanitizedUsername);
     if (!whom_id) {
       return res.status(404).send('User not found');
     }
 
-    // Insert into follower table
+    // Insert into follower table using parameterized queries to prevent SQL injection
     await execute('insert into follower (who_id, whom_id) values ($1, $2)', [req.session.user.user_id, whom_id]);
     req.flash('success', `You are now following "${username}"`);
-    res.redirect(`/${username}`);
+    
+    // Redirect to the sanitized URL to prevent XSS attacks
+    const sanitizedUrl = sanitizeUrl(`/${sanitizedUsername}`);
+    res.redirect(sanitizedUrl);
   } catch (error) {
     console.error('Error:', error);
     res.status(500).send('Internal Server Error');
@@ -330,15 +336,22 @@ app.get('/:username/unfollow', async (req, res) => {
 
     // Get whom_id from the database
     const username = req.params.username;
-    const whom_id = await get_user_id(username);
+
+    // Sanitize input to prevent potential attacks
+    const sanitizedUsername = sanitizeInput(username);
+
+    const whom_id = await get_user_id(sanitizedUsername);
     if (!whom_id) {
       return res.status(404).send('User not found');
     }
 
-    // Delete from follower table
+    // Delete from follower table using parameterized queries to prevent SQL injection
     await execute('delete from follower where who_id=$1 and whom_id=$2', [req.session.user.user_id, whom_id]);
-    req.flash('success', `You are no longer following "${username}"`);
-    res.redirect(`/${username}`);
+    req.flash('success', `You are no longer following "${sanitizedUsername}"`);
+
+    // Redirect to the sanitized URL to prevent potential attacks
+    const sanitizedUrl = sanitizeUrl(`/${sanitizedUsername}`);
+    res.redirect(sanitizedUrl);
   } catch (error) {
     console.error('Error:', error);
     res.status(500).send('Internal Server Error');
@@ -365,6 +378,35 @@ app.listen(5000, () => {
   console.log('Minitwit running at port :5000')
 })
 
+function sanitizeInput(input) {
+  // Replace single quotes with two single quotes to escape them in SQL queries
+  const sanitizedInput = input.replace(/'/g, "''");
+  return sanitizedInput;
+}
+
+function sanitizeUrl(url) {
+  // Regular expression to match potentially dangerous characters in the URL
+  const dangerousCharactersRegex = /[<>"'`]/g;
+
+  // Replace potentially dangerous characters with their HTML entity equivalents
+  const sanitizedUrl = url.replace(dangerousCharactersRegex, match => {
+    switch (match) {
+      case '<':
+        return '&lt;';
+      case '>':
+        return '&gt;';
+      case '"':
+        return '&quot;';
+      case "'":
+        return '&#39;';
+      case '`':
+        return '&#x60;';
+      default:
+        return match;
+    }
+  });
+  return sanitizedUrl;
+}
 
 module.exports = app;
 
