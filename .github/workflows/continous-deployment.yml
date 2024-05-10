@@ -30,7 +30,7 @@ jobs:
       - name: Build and push Minitwit
         uses: docker/build-push-action@v2
         with:
-          context: .
+          context: ./app
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/itu-minitwit:latest
@@ -40,7 +40,7 @@ jobs:
       - name: Build and push Minitwit API
         uses: docker/build-push-action@v2
         with:
-          context: .
+          context: ./API
           file: ./Dockerfile.api
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/itu-minitwit-api:latest
