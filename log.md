@@ -240,7 +240,7 @@ ssh -i ssh_key/do root@178.62.202.172
 ```
 * The droplet does not have docker, so try with `docker-20-04` image instead
 ```
-doctl compute droplet create --region ams --image ubuntu-23-10-x64 --size s-1vcpu-1gb --ssh-keys d2:18:2f:98:9b:11:fc:dd:00:24:9c:dd:df:4e:12:ab  minitwit-swarm-leader
+doctl compute droplet create --region ams --image docker-20-04 --size s-1vcpu-1gb --ssh-keys d2:18:2f:98:9b:11:fc:dd:00:24:9c:dd:df:4e:12:ab  minitwit-swarm-leader
 ```
 * Init docker swarm (with public ip 167.71.69.109) as
 ```
@@ -256,3 +256,43 @@ To add a worker to this swarm, run the following command:
 
 To add a manager to this swarm, run 'docker swarm join-token manager' and follow the instructions.
 ```
+***Continuing the day after***, I've provisioned a new `minitwit-swarm-leader` with IP 104.248.206.209.
+* Open ports for swarm and minitwit on all nodes
+```
+ufw allow 2377/tcp
+ufw allow 7946
+ufw allow 4789/udp
+
+ufw allow 5000
+ufw allow 5001
+
+ufw allow 22
+```
+* Provision a worker, `minitwit-swarm-worker`, with the same command as for the leader
+* ssh into the worker and join the leader as a worker of the swarm
+```
+ssh -i ssh_key/do root@206.189.101.75 -t "docker swarm join --token YOUR_TOKEN 104.248.206.209:2377"
+```
+* Now, running `docker node ls` on the leader node shows
+```
+ID                            HOSTNAME                STATUS    AVAILABILITY   MANAGER STATUS   ENGINE VERSION
+kheep54wi2kxjj31lrrn2v7it *   minitwit-swarm-leader   Ready     Active         Leader           25.0.3
+583gd5bl336vdy0lzl8ny8eon     minitwit-swarm-worker   Ready     Active                          25.0.3
+```
+* Setup the minitwit code on the leader node
+```
+git clone https://github.com/group-o-minitwit-2024/MiniTwit.git
+git checkout docker-swarm
+cd MiniTwit
+bash build.sh
+docker network create --driver overlay minitwit-network
+docker stack deploy -c compose.swarm.yaml lol
+```
+* Following all of the above steps should lead to a minitwit instance being hosted 
+* Individual services can be scaled with
+```
+docker service scale lol_minitwit=2
+```
+This requires that the worker nodes also have the image available. 
+
+***THAT'S IT***
