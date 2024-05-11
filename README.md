@@ -49,7 +49,7 @@ python3 minitwit_simulator.py http://localhost:5001
 ```
 
 ## Monitoring
-Monitoring of MiniTwit is handled as an external service with `Prometheus` and visualized with `Grafana`, and can be found [here](https://github.com/group-o-minitwit-2024/MiniTwit-monitoring). It connects to `minitwit` and `minitwit-api` on the server ip address in production, or through the docker network `prom_net` in development. 
+Monitoring of MiniTwit is handled as an external service with `Prometheus` and visualized with `Grafana`, and can be found [here](https://github.com/group-o-minitwit-2024/MiniTwit-monitoring). It connects to `minitwit` and `minitwit-api` on the server ip address in production, or through the docker network `prom_net` in development. Check out the deployed monitoring [here](http://178.62.193.231:3000/d/ediic79ugn1moe/monitortwit?orgId=1&refresh=5s)!
 
 
 ## Linting
