@@ -1,6 +1,16 @@
 .venv/
 __pycache__/
+
+temp/
+
+# secrets
 ssh_key/
+secrets/
+
+# terraform
+.terraform/
+.terraform.*
+terraform.tfstate*
 
 # ignore /utils folder in app and API
 app/*/utils/

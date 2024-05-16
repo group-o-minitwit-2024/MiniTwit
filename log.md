@@ -282,8 +282,8 @@ kheep54wi2kxjj31lrrn2v7it *   minitwit-swarm-leader   Ready     Active         L
 * Setup the minitwit code on the leader node
 ```
 git clone https://github.com/group-o-minitwit-2024/MiniTwit.git
-git checkout docker-swarm
 cd MiniTwit
+git checkout docker-swarm
 bash build.sh
 docker network create --driver overlay minitwit-network
 docker stack deploy -c compose.swarm.yaml lol
@@ -296,3 +296,47 @@ docker service scale lol_minitwit=2
 This requires that the worker nodes also have the image available. 
 
 ***THAT'S IT***
+
+# 16/05 - Author: mahf, mkrh
+Still working on docker swarm. We've just run all of the above setup such that we have:
+```
+doctl compute droplet ls
+
+ID           Name                          Public IPv4       Private IPv4    Public IPv6    Memory    VCPUs    Disk    Region    Image                                   VPC UUID                                Status    Tags    Features                            Volumes
+403992304    ubuntu-s-2vcpu-2gb-ams3-01    178.62.218.96     10.110.0.2                     2048      2        60      ams3      Ubuntu 22.04 (LTS) x64                  09b86842-9585-468e-8ace-2e414ae6a489    active            droplet_agent,private_networking    
+418164955    minitwit-monitoring           178.62.193.231    10.110.0.3                     1024      1        25      ams3      Ubuntu Docker 25.0.3 on Ubuntu 22.04    09b86842-9585-468e-8ace-2e414ae6a489    active            droplet_agent,private_networking    
+419143988    minitwit-swarm-leader         188.166.13.145    10.110.0.6                     1024      1        25      ams3      Ubuntu Docker 25.0.3 on Ubuntu 22.04    09b86842-9585-468e-8ace-2e414ae6a489    active            droplet_agent,private_networking    
+419144500    minitwit-swarm-manager-01     178.62.208.166    10.110.0.7                     1024      1        25      ams3      Ubuntu Docker 25.0.3 on Ubuntu 22.04    09b86842-9585-468e-8ace-2e414ae6a489    active            droplet_agent,private_networking    
+419144511    minitwit-swarm-worker-01      128.199.55.41     10.110.0.8                     1024      1        25      ams3      Ubuntu Docker 25.0.3 on Ubuntu 22.04    09b86842-9585-468e-8ace-2e414ae6a489    active            droplet_agent,private_networking    
+
+```
+
+* We have messed with it a bit, and we've got it all working :sunglasses:
+* We have modified the building script such that it pushes to dockerhub conditionally i.e. run 
+```
+bash build.sh --push jeffjeffersonthe2nd
+```
+* With this, we don't need to build each image locally on each node
+* We still have issues regarding the bind mount of db `./utils/schema_postgres.sql:/docker-entrypoint-initdb.d/schema_postgres.sql` but this will not be an issue in prod. Regardless, it should still be solved. 
+* We will move on to create our infrastructure as code using _Terraform_
+* We have followed the [guide](https://github.com/itu-devops/itu-minitwit-docker-swarm-teraform/tree/master) from the lectures, and managed to get it working. There are some details that needs ironing out. 
+* Current root directory looks like this
+```
+ls
+
+API                 compose.test.yaml     prod.env                  ssh_key.tf
+app                 cp_shrd.sh            provider.tf               temp
+backend.tf          dev.env               README.md                 terraform.tfstate
+build.sh            log.md                secrets                   terraform.tfstate.backup
+compose.dev.yaml    minitwit.auto.tfvars  secrets_template          utils
+compose.prod.yaml   minitwit_swarm.tf     sonar-project.properties
+compose.swarm.yaml  node_modules          ssh_key
+```
+New files are 
+* `backend.tf` - defines connection to the digital ocean spaces object storage, used for storing the terraform state file 
+* `minitwit.auto.tfvars` - this file defines variables such as region and ssh key locations 
+* `minitwit_swarm.tf` - main file for provisioning swarm leader, managers, and workers 
+* `provider.tf` - this file configures the connection to digital ocean and sets it as provider. This file requires secrets that are set in the `/secrets/tf_secrets` 
+* `/temp` - this directory is for storing swarm tokens, outputted by `minitwit_swarm.tf`
+* `ssh_key.tf` - configures the ssh key
+* `/ssh_key` - directory where `terraform` and `terraform.pub` ssh key files are stored

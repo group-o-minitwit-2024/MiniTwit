@@ -32,7 +32,7 @@ services:
     env_file:
       - dev.env
     volumes:
-      - ./utils/schema_postgres.sql:/docker-entrypoint-initdb.d/schema_postgres.sql 
+      - ../utils/schema_postgres.sql:/docker-entrypoint-initdb.d/schema_postgres.sql 
     ports:
       - "5432:5432"
     networks:
