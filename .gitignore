@@ -9,6 +9,7 @@ secrets/
 .terraform/
 .terraform.*
 terraform.tfstate*
+terraform/temp/
 
 # ignore /utils folder in app and API
 app/*/utils/
