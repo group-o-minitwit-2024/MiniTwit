@@ -11,12 +11,23 @@ const session = require('express-session');
 const expressLayouts = require('express-ejs-layouts');
 const bcrypt = require('bcrypt');
 const MD5 = require('crypto-js/md5');
+const winston = require('winston');
 const { pool, init_DB, query, execute, get_user_id} = require('./utils/db');
 
 // Import the sequlize functionality
 const { Account, Message, Follower } = require('./utils/sequilize');
 const { Sequelize } = require('sequelize');
 
+const winston_logger = winston.createLogger({
+  level: 'debug',
+  format: winston.format.combine(
+    winston.format.colorize(),
+    winston.format.simple()
+  ),
+  transports: [
+    new winston.transports.Console()
+  ]
+});
 
 
 // Prometheus tracking
@@ -213,36 +224,43 @@ app.get('/login', (req, res) => {
   res.render('login.ejs', { user: req.session.user, error: null, flashes: req.flash('success') });
 });
 
+// Define your routes
 app.post('/login', async (req, res) => {
-  // Implement your logic here
   try {
     const { username, password } = req.body;
+    winston_logger.debug(`Received login request for username: ${username}`);
 
-    // Query the user from the database
     const user = await Account.findOne({ where: { username: username } });
 
-    if (!user || user.length === 0) {
+    if (!user) {
+      winston_logger.warn(`Invalid username: ${username}`);
       return res.render('login.ejs', { error: 'Invalid username', flashes: req.flash('success') });
     }
 
-    // Check if password matches
     const passwordMatch = bcrypt.compareSync(password, user.pw_hash);
 
     if (!passwordMatch) {
+      winston_logger.warn(`Invalid password attempt for username: ${username}`);
       return res.render('login.ejs', { error: 'Invalid password', flashes: req.flash('success') });
     }
 
-    // Set user session
     req.session.user = user;
-    req.session.save();
+    req.session.save((err) => {
+      if (err) {
+        winston_logger.error('Session save error:', err);
+        return res.status(500).send("Internal Server Error");
+      }
 
-    req.flash('success', 'You were logged in');
-    res.redirect('/');
+      winston_logger.info(`User ${username} logged in successfully`);
+      req.flash('success', 'You were logged in');
+      res.redirect('/');
+    });
   } catch (error) {
-    console.error("Error:", error);
+    winston_logger.error('Error during login process:', error);
     res.status(500).send("Internal Server Error");
   }
 });
+
 
 app.get('/logout', async (req, res) => {
   req.flash('success', 'You were logged out');
