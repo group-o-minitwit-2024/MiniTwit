@@ -15,9 +15,6 @@ echo -e "\n--> Checking that environment variables are set\n"
 [ -z "$AWS_ACCESS_KEY_ID" ] && echo "AWS_ACCESS_KEY_ID is not set" && exit
 [ -z "$AWS_SECRET_ACCESS_KEY" ] && echo "AWS_SECRET_ACCESS_KEY is not set" && exit
 
-# create /temp if it doesn't exist
-[ ! -d "./terraform/temp" ] && mkdir ./terraform/temp
-
 echo -e "\n--> Initializing terraform\n"
 # initialize terraform
 terraform -chdir=./terraform init \
@@ -48,5 +45,5 @@ ssh \
 
 echo -e "\n--> Done bootstrapping Minitwit"
 echo -e "--> Site will be avilable @ http://$(terraform -chdir=./terraform output -raw public_ip)"
-echo -e "--> ssh to swarm leader with 'ssh root@\$(terraform output -raw minitwit-swarm-leader-ip-address) -i ssh_key/terraform'"
+echo -e "--> ssh to swarm leader with 'ssh root@$(terraform output -raw minitwit-swarm-leader-ip-address) -i ssh_key/terraform'"
 echo -e "--> To remove the infrastructure run: terraform destroy -auto-approve"
