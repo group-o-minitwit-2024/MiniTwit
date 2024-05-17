@@ -120,6 +120,16 @@ To use Terraform, you will need to fill out the secrets seen in [`tf_secrets`](/
 * `AWS_ACCESS_KEY_ID` - The ID of the access key to the space
 * `AWS_SECRET_ACCESS_KEY` - The key to the space 
 
+#### SSH keys for Terraform
+Terraform needs ssh-keys to communicate with Digital Ocean. Create ssh-keys with 
+```
+mkdir ssh_key && ssh-keygen -t rsa -b 4096 -q -N '' -f ./ssh_key/terraform
+```
+Copy them into the [`/terraform`](/terraform/) folder as well. Not sure if this is necessary but better safe than sorry
+```
+cp -r ssh_key terraform
+```
+
 ### Quickstart
 To quickly build the infrastructure, run [`bootstrap.sh`](/bootstrap.sh) from the root of the project
 ```
