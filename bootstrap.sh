@@ -45,5 +45,5 @@ ssh \
 
 echo -e "\n--> Done bootstrapping Minitwit"
 echo -e "--> Site will be avilable @ http://$(terraform -chdir=./terraform output -raw public_ip)"
-echo -e "--> ssh to swarm leader with 'ssh root@$(terraform output -raw minitwit-swarm-leader-ip-address) -i ssh_key/terraform'"
+echo -e "--> ssh to swarm leader with 'ssh root@$(terraform -chdir=./terraform output -raw minitwit-swarm-leader-ip-address) -i ssh_key/terraform'"
 echo -e "--> To remove the infrastructure run: terraform destroy -auto-approve"
