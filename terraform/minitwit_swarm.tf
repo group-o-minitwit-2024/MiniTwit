@@ -23,16 +23,6 @@ resource "digitalocean_droplet" "minitwit-swarm-leader" {
     timeout = "2m"
   }
 
-  provisioner "file" {
-    source = "../compose/compose.swarm.yaml"
-    destination = "/root/minitwit_stack.yml"
-  }
-
-  provisioner "file" {
-    source = "../compose/dev.env"
-    destination = "/root/dev.env"
-  }
-
   provisioner "remote-exec" {
     inline = [
       # allow ports for docker swarm

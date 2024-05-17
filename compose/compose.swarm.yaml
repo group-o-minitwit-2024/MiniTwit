@@ -2,14 +2,14 @@ version: '3.8'
 
 services:
   minitwit:
-    image: minitwit:latest
+    image: jeffjeffersonthe2nd/minitwit:latest
     ports: 
       - "5000:5000"
     env_file:
       - dev.env
 
   minitwit-api:
-    image: minitwit-api:latest
+    image: jeffjeffersonthe2nd/minitwit-api:latest
     ports:
       - "5001:5001"
     env_file:

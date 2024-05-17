@@ -36,17 +36,17 @@ terraform -chdir=./terraform apply -auto-approve
 
 # deploy the stack to the cluster
 echo -e "\n--> Deploying the Minitwit stack to the cluster\n"
+scp \
+    -r \
+    -i ssh_key/terraform \
+    ./compose root@$(terraform -chdir=./terraform output -raw minitwit-swarm-leader-ip-address):/root
 ssh \
     -o 'StrictHostKeyChecking no' \
     root@$(terraform -chdir=./terraform output -raw minitwit-swarm-leader-ip-address) \
     -i ssh_key/terraform \
-    'docker stack deploy minitwit -c minitwit_stack.yml'
+    'docker stack deploy minitwit -c compose/compose.swarm.yaml'
 
 echo -e "\n--> Done bootstrapping Minitwit"
-echo -e "--> The dbs will need a moment to initialize, this can take up to a couple of minutes..."
-echo -e "--> Site will be avilable @ http://$(terraform output -raw public_ip)"
+echo -e "--> Site will be avilable @ http://$(terraform -chdir=./terraform output -raw public_ip)"
 echo -e "--> ssh to swarm leader with 'ssh root@\$(terraform output -raw minitwit-swarm-leader-ip-address) -i ssh_key/terraform'"
 echo -e "--> To remove the infrastructure run: terraform destroy -auto-approve"
-
-
-scp -i ssh_key/terraform ../compose/dev.env root@$(terraform -chdir=./terraform output -raw minitwit-swarm-leader-ip-address):/root/dev.env
