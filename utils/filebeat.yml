@@ -2,6 +2,7 @@ filebeat.inputs:
 - type: container
   paths: 
     - '/var/lib/docker/containers/*/*.log'
+    - './logs/*.log'
   exclude:
     - container.labels.app != "minitwit" 
 
@@ -25,12 +26,9 @@ output.elasticsearch:
             container.image.name: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
         - equals:
             container.image.name: docker.elastic.co/kibana/kibana:7.2.0
-    - index: "filebeat-minitwit-%{[agent.version]}-%{+yyyy.MM.dd}"
-      when.or:
-          - equals:
-              container.image.name: ${ELK_USER}/minitwitserver
-          - equals:
-              container.image.name: ${ELK_USER}/minitwitclient
+    - index: "minitwit-%{[agent.version]}-%{+yyyy.MM.dd}"
+      when.regexp:  
+        container.image.name: .*minitwit.*  
     - index: "filebeat-ngix-%{[agent.version]}-%{+yyyy.MM.dd}"
       when.equals:
         container.image.name: nginx
