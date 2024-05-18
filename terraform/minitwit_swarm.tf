@@ -7,7 +7,7 @@
 
 # create cloud vm
 resource "digitalocean_droplet" "minitwit-swarm-leader" {
-  image = "docker-20-04" // ubuntu-22-04-x64
+  image = "docker-20-04"
   name = "minitwit-swarm-leader"
   region = var.region
   size = "s-1vcpu-1gb"
@@ -30,9 +30,8 @@ resource "digitalocean_droplet" "minitwit-swarm-leader" {
       "ufw allow 7946",
       "ufw allow 4789/udp",
       # ports for apps
-      "ufw allow 80",
-      "ufw allow 8080",
-      "ufw allow 8888",
+      "ufw allow 5000",
+      "ufw allow 5001",
       # SSH
       "ufw allow 22",
 
@@ -102,9 +101,8 @@ resource "digitalocean_droplet" "minitwit-swarm-manager" {
       "ufw allow 7946",
       "ufw allow 4789/udp",
       # ports for apps
-      "ufw allow 80",
-      "ufw allow 8080",
-      "ufw allow 8888",
+      "ufw allow 5000",
+      "ufw allow 5001",
       # SSH
       "ufw allow 22",
 
@@ -157,9 +155,8 @@ resource "digitalocean_droplet" "minitwit-swarm-worker" {
       "ufw allow 7946",
       "ufw allow 4789/udp",
       # ports for apps
-      "ufw allow 80",
-      "ufw allow 8080",
-      "ufw allow 8888",
+      "ufw allow 5000",
+      "ufw allow 5001",
       # SSH
       "ufw allow 22",
 
