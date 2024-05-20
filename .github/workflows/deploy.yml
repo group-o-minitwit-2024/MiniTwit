@@ -48,9 +48,6 @@ jobs:
         with:
           terraform_version: 1.0.0  # Replace with the version you need
 
-      - name: Copy secrets structure
-        run: cp -r secrets_template secrets
-
       - name: Setup Secrets
         run: |
           mkdir secrets
