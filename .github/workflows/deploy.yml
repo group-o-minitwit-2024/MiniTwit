@@ -43,11 +43,6 @@ jobs:
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/minitwit-api:apibuildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/minitwit-api:apibuildcache,mode=max
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.8.3
-
       - name: Setup Secrets
         run: |
           mkdir secrets
@@ -63,21 +58,18 @@ jobs:
           echo "${{ secrets.TERRAFORM_PUB }}" > ssh_key/terraform.pub
           cp -r ssh_key terraform
 
-      - name: Apply Terraform Configuration
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.8.3
+
+      - name: Run Terraform init
         run: |
-          echo -e "\n--> Initializing terraform\n"
           terraform -chdir=./terraform init \
               -backend-config "bucket=${{ secrets.SPACE_NAME }}" \
               -backend-config "key=${{ secrets.STATE_FILE }}" \
               -backend-config "access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
               -backend-config "secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-
-          echo -e "\n--> Validating terraform configuration\n"
-          terraform -chdir=./terraform validate
-
-          echo -e "\n--> Creating Infrastructure\n"
-          terraform -chdir=./terraform apply -auto-approve \
-              -var "do_token=${{ secrets.TF_VAR_DO_TOKEN }}"
 
       - name: output raw swarm leader ip
         run: |
