@@ -1,13 +1,17 @@
 -- Drop table if exists user (changed to account)
 DROP TABLE IF EXISTS account;
+DROP INDEX IF EXISTS idx_userid;
 
 -- Create table user
 CREATE TABLE account (
   user_id SERIAL PRIMARY KEY,
-  username VARCHAR(255) NOT NULL,
-  email VARCHAR(255) NOT NULL,
-  pw_hash VARCHAR(255) NOT NULL
+  username VARCHAR NOT NULL,
+  email VARCHAR NOT NULL,
+  pw_hash VARCHAR NOT NULL
 );
+-- Create index on user
+CREATE INDEX idx_userid ON account (user_id);
+
 
 -- Drop table if exists follower
 DROP TABLE IF EXISTS follower;
@@ -20,12 +24,20 @@ CREATE TABLE follower (
 
 -- Drop table if exists message
 DROP TABLE IF EXISTS message;
+DROP INDEX IF EXISTS idx_messageid;
+DROP INDEX IF EXISTS idx_pubdata;
+DROP INDEX IF EXISTS idx_authorid;
 
 -- Create table message
 CREATE TABLE message (
   message_id SERIAL PRIMARY KEY,
   author_id INTEGER NOT NULL,
-  text VARCHAR(255) NOT NULL,
+  text VARCHAR NOT NULL,
   pub_date INTEGER,
   flagged INTEGER
 );
+
+-- Create index on message  
+CREATE INDEX idx_messageid ON message (message_id);
+CREATE INDEX idx_pubdata ON message (pub_date);
+CREATE INDEX idx_authorid ON message (author_id);
