@@ -51,34 +51,29 @@ jobs:
       - name: Copy secrets structure
         run: cp -r secrets_template secrets
 
-      - name: Export environment variables
+      - name: Setup Secrets
         run: |
-          echo "export TF_VAR_do_token=${{ secrets.TF_VAR_DO_TOKEN }}" >> $GITHUB_ENV
-          echo "export SPACE_NAME=${{ secrets.SPACE_NAME }}" >> $GITHUB_ENV
-          echo "export STATE_FILE=${{ secrets.STATE_FILE }}" >> $GITHUB_ENV
-          echo "export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> $GITHUB_ENV
-          echo "export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> $GITHUB_ENV
-          [ -z "$TF_VAR_do_token" ] && echo "TF_VAR_do_token is not set" && exit
+          mkdir secrets
+          echo "DB_CONNECTION_TYPE=prod" >> secrets/db_secrets.env
+          echo "POSTGRES_USER={{ secrets.POSTGRES_USER }}" >> secrets/db_secrets.env
+          echo "POSTGRES_PASSWORD={{ secrets.POSTGRES_PASSWORD }}" >> secrets/db_secrets.env
+          echo "POSTGRES_HOST={{ secrets.POSTGRES_HOST }}" >> secrets/db_secrets.env
+          echo "POSTGRES_PORT={{ secrets.POSTGRES_PORT }}" >> secrets/db_secrets.env
+          echo "POSTGRES_NAME={{ secrets.POSTGRES_NAME }}" >> secrets/db_secrets.env
+          echo "{{ secrets.CA_CERTIFICATE }}" > secrets/ca-certificate.crt
+          mkdir sshkey
+          echo "{{ secrets.TERRAFORM  }}" > sshkey/terraform
+          echo "{{ secrets.TERRAFORM_PUB  }}" > sshkey/terraform.pub
+
 
       - name: Bootstrap terraform and push app
         run: |
-          echo -e "\n--> Loading environment variables from secrets file\n"
-          source secrets/tf_secrets
-          echo -e "\n--> Checking that environment variables are set\n"
-          # check that all variables are set
-          [ -z "$TF_VAR_do_token" ] && echo "TF_VAR_do_token is not set" && exit
-          [ -z "$SPACE_NAME" ] && echo "SPACE_NAME is not set" && exit
-          [ -z "$STATE_FILE" ] && echo "STATE_FILE is not set" && exit
-          [ -z "$AWS_ACCESS_KEY_ID" ] && echo "AWS_ACCESS_KEY_ID is not set" && exit
-          [ -z "$AWS_SECRET_ACCESS_KEY" ] && echo "AWS_SECRET_ACCESS_KEY is not set" && exit
-
           echo -e "\n--> Initializing terraform\n"
-          # initialize terraform
           terraform -chdir=./terraform init \
-              -backend-config "bucket=$SPACE_NAME" \
-              -backend-config "key=$STATE_FILE" \
-              -backend-config "access_key=$AWS_ACCESS_KEY_ID" \
-              -backend-config "secret_key=$AWS_SECRET_ACCESS_KEY"
+              -backend-config "bucket=${{ secrets.SPACE_NAME }}" \
+              -backend-config "key=${{ secrets.STATE_FILE }}" \
+              -backend-config "access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
+              -backend-config "secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
 
           # check that everything looks good
           echo -e "\n--> Validating terraform configuration\n"
