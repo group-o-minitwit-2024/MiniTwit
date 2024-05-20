@@ -31,7 +31,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./app
-          file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/itu-minitwit:latest
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/itu-minitwit:webbuildcache
@@ -41,7 +40,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./API
-          file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/itu-minitwit-api:latest
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/itu-minitwit-api:apibuildcache
