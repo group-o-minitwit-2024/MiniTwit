@@ -80,7 +80,8 @@ jobs:
               apply -auto-approve \
               -var "do_token=${{ secrets.TF_VAR_DO_TOKEN }}" \
               -var "pub_key=${{ secrets.TERRAFORM_PUB }}" \
-              -var "pvt_key=${{ secrets.TERRAFORM }}" \
+              -var "pvt_key=${{ secrets.TERRAFORM }}"
+              
           echo -e "\n--> Copying secrets to swarm leader\n"
           scp \
               -r \
