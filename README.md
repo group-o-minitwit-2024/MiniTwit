@@ -52,6 +52,38 @@ python3 minitwit_simulator.py http://localhost:5001
 Monitoring of MiniTwit is handled as an external service with `Prometheus` and visualized with `Grafana`, and can be found [here](https://github.com/group-o-minitwit-2024/MiniTwit-monitoring). It connects to `minitwit` and `minitwit-api` on the server ip address in production, or through the docker network `prom_net` in development. Check out the deployed monitoring [here](http://178.62.193.231:3000/d/ediic79ugn1moe/monitortwit?orgId=1&refresh=5s)!
 
 
+## Logging
+Logging of MiniTwit is managed using the EFK (Elasticsearch, Filebeat, Kibana) stack. This stack ensures efficient collection, storage, and visualization of log data. The logging is implemented with Winston, which sends the logs to the console (*stderror* or *stdout*). Filebeat gathers these logs from the console, and ships them to Elasticsearch. There it is indexed and stored. Kibana provides a user-friendly interface to search, analyze, and visualize the logs. 
+
+To start, first run:
+```
+bash setup_elk.sh
+```
+
+Then run:
+```
+sudo apt-get install apache2-utils
+sudo htpasswd -c .htpasswd <USERNAME>
+```
+Where `<USERNAME>` is the username used for loggin in to the Kibana interface. This will also provide a prompt to enter a password; the password which will be used to log in to Kibana. 
+
+To build the applications (localhosts of MiniTwit and EFK) run:
+```
+bash build.sh
+```
+And finally, to start the applications run:
+```
+docker-compose -f compose.dev.yaml up 
+```
+
+To access the Kibana, go to [http://localhost:5601](http://localhost:5601).
+
+
+
+
+
+
+
 ## Linting
 ### Javascript linting
 For linting `.js` files, we use `eslint`. This runs as a github actions workflow to lint all javascript files. 
