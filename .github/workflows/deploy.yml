@@ -52,15 +52,15 @@ jobs:
         run: |
           mkdir secrets
           echo "DB_CONNECTION_TYPE=prod" >> secrets/db_secrets.env
-          echo "POSTGRES_USER={{ secrets.POSTGRES_USER }}" >> secrets/db_secrets.env
-          echo "POSTGRES_PASSWORD={{ secrets.POSTGRES_PASSWORD }}" >> secrets/db_secrets.env
-          echo "POSTGRES_HOST={{ secrets.POSTGRES_HOST }}" >> secrets/db_secrets.env
-          echo "POSTGRES_PORT={{ secrets.POSTGRES_PORT }}" >> secrets/db_secrets.env
-          echo "POSTGRES_NAME={{ secrets.POSTGRES_NAME }}" >> secrets/db_secrets.env
-          echo "{{ secrets.CA_CERTIFICATE }}" > secrets/ca-certificate.crt
+          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> secrets/db_secrets.env
+          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> secrets/db_secrets.env
+          echo "POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}" >> secrets/db_secrets.env
+          echo "POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}" >> secrets/db_secrets.env
+          echo "POSTGRES_NAME=${{ secrets.POSTGRES_NAME }}" >> secrets/db_secrets.env
+          echo "${{ secrets.CA_CERTIFICATE }}" > secrets/ca-certificate.crt
           mkdir sshkey
-          echo "{{ secrets.TERRAFORM  }}" > sshkey/terraform
-          echo "{{ secrets.TERRAFORM_PUB  }}" > sshkey/terraform.pub
+          echo "${{ secrets.TERRAFORM  }}" > sshkey/terraform
+          echo "${{ secrets.TERRAFORM_PUB  }}" > sshkey/terraform.pub
 
 
       - name: Bootstrap terraform and push app
