@@ -70,7 +70,7 @@ services:
         - "ELK_USER=${ELK_USER}"
     user: root
     volumes:
-        - ${ELK_DIR}/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+        - ${ELK_DIR}/utils/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
         - /var/lib/docker:/var/lib/docker:ro
         - /var/run/docker.sock:/var/run/docker.sock
     networks:
@@ -87,7 +87,7 @@ services:
       - elk
     volumes:
       - type: bind
-        source: ${ELK_DIR}/nginx.conf
+        source: ${ELK_DIR}/utils/nginx.conf
         target: /etc/nginx/nginx.conf
       - type: bind
         source: ${ELK_DIR}/.htpasswd
