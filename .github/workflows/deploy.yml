@@ -97,8 +97,6 @@ jobs:
           for ip in "${all_ips[@]}"; do
             echo -e "\n--> Copying secrets to $ip\n"
             scp -i ssh_key/terraform -o StrictHostKeyChecking=no -r secrets root@$ip:/root
-            echo -e "\n--> Copying compose to $ip\n"
-            scp -i ssh_key/terraform -o StrictHostKeyChecking=no -r compose root@$ip:/root
           done
 
       - name: Deploy stack on swarm leader

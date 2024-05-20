@@ -31,16 +31,27 @@ terraform -chdir=./terraform validate
 echo -e "\n--> Creating Infrastructure\n"
 terraform -chdir=./terraform apply -auto-approve
 
-# scp secrets to prod.env
-echo -e "\n--> Copying secrets to swarm leader\n"
-scp \
-    -r \
-    -i ssh_key/terraform \
-    ./secrets root@$(terraform -chdir=./terraform output -raw minitwit-swarm-leader-ip-address):/root
+# scp secrets
+echo -e "\n--> Copying secrets to all nodes\n"
+
+# Get the IP addresses from Terraform output
+leader_ip=$(terraform -chdir=./terraform output -raw minitwit-swarm-leader-ip-address)
+manager_ips=$(terraform -chdir=./terraform output -json minitwit-swarm-manager-ip-address | jq -r '.[]')
+worker_ips=$(terraform -chdir=./terraform output -json minitwit-swarm-worker-ip-address | jq -r '.[]')
+
+# Array to hold all IP addresses
+all_ips=($leader_ip $manager_ips $worker_ips)
+
+# Iterate over each IP address and copy the files
+for ip in "${all_ips[@]}"; do
+    echo -e "\n--> Copying secrets to $ip\n"
+    scp -o 'StrictHostKeyChecking no' -r -i ssh_key/terraform ./secrets root@$ip:/root
+done
 
 # deploy the stack to the cluster
 echo -e "\n--> Deploying the Minitwit stack to the cluster\n"
 scp \
+    -o 'StrictHostKeyChecking no' \
     -r \
     -i ssh_key/terraform \
     ./compose root@$(terraform -chdir=./terraform output -raw minitwit-swarm-leader-ip-address):/root
