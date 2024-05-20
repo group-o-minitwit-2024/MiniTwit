@@ -130,7 +130,7 @@ app.get('/msgs/:username', async (req, res) => {
         where: {
         '$Account.user_id$': user.user_id
         },
-        order: [['pub_date', 'DESC']],
+        order: [['message_id', 'DESC']],
         limit: no_msgs,
         raw: true
     });
@@ -197,7 +197,7 @@ app.get('/msgs', async (req, res) => {
           attributes: [], // Don't fetch any additional attributes from the Account model
         }],
         where: { flagged: 0 },
-        order: [['pub_date', 'DESC']],
+        order: [['message_id', 'DESC']],
         limit: no_msgs,
         raw: true
       });

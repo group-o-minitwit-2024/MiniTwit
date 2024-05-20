@@ -1,0 +1,97 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Run cp_shrd.sh
+        run: bash cp_shrd.sh
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Build and push Minitwit
+        uses: docker/build-push-action@v2
+        with:
+          context: ./app
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/minitwit:latest
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/minitwit:webbuildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/minitwit:webbuildcache,mode=max
+
+      - name: Build and push Minitwit API
+        uses: docker/build-push-action@v2
+        with:
+          context: ./API
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/minitwit-api:latest
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/minitwit-api:apibuildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/minitwit-api:apibuildcache,mode=max
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.0.0  # Replace with the version you need
+
+      - name: Setup Secrets
+        run: |
+          mkdir secrets
+          echo "DB_CONNECTION_TYPE=prod" >> secrets/db_secrets.env
+          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> secrets/db_secrets.env
+          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> secrets/db_secrets.env
+          echo "POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}" >> secrets/db_secrets.env
+          echo "POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}" >> secrets/db_secrets.env
+          echo "POSTGRES_NAME=${{ secrets.POSTGRES_NAME }}" >> secrets/db_secrets.env
+          echo "${{ secrets.CA_CERTIFICATE }}" > secrets/ca-certificate.crt
+          mkdir sshkey
+          echo "${{ secrets.TERRAFORM  }}" > sshkey/terraform
+          echo "${{ secrets.TERRAFORM_PUB  }}" > sshkey/terraform.pub
+
+
+      - name: Bootstrap terraform and push app
+        run: |
+          echo -e "\n--> Initializing terraform\n"
+          terraform -chdir=./terraform init \
+              -backend-config "bucket=${{ secrets.SPACE_NAME }}" \
+              -backend-config "key=${{ secrets.STATE_FILE }}" \
+              -backend-config "access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
+              -backend-config "secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          echo -e "\n--> Validating terraform configuration\n"
+          terraform -chdir=./terraform validate
+          echo -e "\n--> Creating Infrastructure\n"
+          terraform -chdir=./terraform apply -auto-approve
+          echo -e "\n--> Copying secrets to swarm leader\n"
+          scp \
+              -r \
+              -i ssh_key/terraform \
+              ./secrets root@$(terraform -chdir=./terraform output -raw minitwit-swarm-leader-ip-address):/root
+          echo -e "\n--> Deploying the Minitwit stack to the cluster\n"
+          scp \
+              -r \
+              -i ssh_key/terraform \
+              ./compose root@$(terraform -chdir=./terraform output -raw minitwit-swarm-leader-ip-address):/root
+          ssh \
+              -o 'StrictHostKeyChecking no' \
+              root@$(terraform -chdir=./terraform output -raw minitwit-swarm-leader-ip-address) \
+              -i ssh_key/terraform \
+              'docker stack deploy minitwit -c compose/compose.prod.yaml'
+
+          echo -e "\n--> Done bootstrapping Minitwit"
+          echo -e "--> Site will be avilable @ http://$(terraform -chdir=./terraform output -raw public_ip)"
+          echo -e "--> ssh to swarm leader with 'ssh root@$(terraform -chdir=./terraform output -raw minitwit-swarm-leader-ip-address) -i ssh_key/terraform'"
+          echo -e "--> To remove the infrastructure run: terraform destroy -auto-approve"
