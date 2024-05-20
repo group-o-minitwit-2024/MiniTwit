@@ -103,11 +103,10 @@ and then filling out the secrets files.
 ```
 secrets
 ├── ca-certificate.crt
-├── db_connectionstring.json
-├── db_secrets
+├── db_secrets.env
 └── tf_secrets
 ```
-[`ca-certificate.crt`](/secrets_template/ca-certificate.crt), [`db_connectionstring.json`](/secrets_template/db_connectionstring.json) and [`db_secrets`](/secrets_template/db_secrets) are all related to the database connection in [`utils/db.js`](/utils/db.js) and [`utils/sequilize.js`](/utils/sequilize.js). [`tf_secrets`](/secrets_template/tf_secrets) is for defining relevant environment variables needed for Terraform's configuration.
+[`ca-certificate.crt`](/secrets_template/ca-certificate.crt) and [`db_secrets.env`](/secrets_template/db_secrets.env) are related to the database connection in [`utils/db.js`](/utils/db.js) and [`utils/sequilize.js`](/utils/sequilize.js). [`tf_secrets`](/secrets_template/tf_secrets) is for defining relevant environment variables needed for Terraform's configuration.
 
 
 ## Terraform
