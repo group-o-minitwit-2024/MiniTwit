@@ -49,13 +49,13 @@ jobs:
           terraform_version: 1.0.0  # Replace with the version you need
 
 
-       - name: Export environment variables
-          run: |
-          echo "export TF_VAR_do_token=${{ secrets.TF_VAR_DO_TOKEN }}" >> tf_secrets
-          echo "export SPACE_NAME=${{ secrets.SPACE_NAME }}" >> tf_secrets
-          echo "export STATE_FILE=${{ secrets.STATE_FILE }}" >> tf_secrets
-          echo "export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> tf_secrets
-          echo "export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> tf_secrets
+      - name: Export environment variables
+        run: |
+        echo "export TF_VAR_do_token=${{ secrets.TF_VAR_DO_TOKEN }}" >> tf_secrets
+        echo "export SPACE_NAME=${{ secrets.SPACE_NAME }}" >> tf_secrets
+        echo "export STATE_FILE=${{ secrets.STATE_FILE }}" >> tf_secrets
+        echo "export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> tf_secrets
+        echo "export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> tf_secrets
 
       - name: Run build.sh
         run: bash build.sh
