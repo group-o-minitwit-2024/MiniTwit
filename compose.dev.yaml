@@ -43,9 +43,9 @@ services:
       - db_net
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 3s
-      timeout: 3s
-      retries: 3
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   elasticsearch:
     image: "docker.elastic.co/elasticsearch/elasticsearch:7.17.1"
@@ -70,7 +70,7 @@ services:
         - "ELK_USER=${ELK_USER}"
     user: root
     volumes:
-        - ${ELK_DIR}/utils/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+        - ${ELK_DIR}/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
         - /var/lib/docker:/var/lib/docker:ro
         - /var/run/docker.sock:/var/run/docker.sock
     networks:
@@ -87,7 +87,7 @@ services:
       - elk
     volumes:
       - type: bind
-        source: ${ELK_DIR}/utils/nginx.conf
+        source: ${ELK_DIR}/nginx.conf
         target: /etc/nginx/nginx.conf
       - type: bind
         source: ${ELK_DIR}/.htpasswd
