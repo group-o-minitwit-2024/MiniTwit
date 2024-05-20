@@ -1,14 +1,14 @@
 const createError = require('http-errors');
 const express = require('express');
 const fs = require('fs');
-const { pool, init_DB, query, execute } = require('./utils/db');
+//const { pool, init_DB, query, execute } = require('./utils/db');
 const bcrypt = require('bcrypt');
 
 // Configuration
 const DEBUG = true;
 
 // Import the sequlize functionality
-const { Account, Message, Follower } = require('./utils/sequilize');
+const { Account, Message, Follower, get_user_id } = require('./utils/sequilize');
 const { Sequelize } = require('sequelize');
 
 

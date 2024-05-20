@@ -97,16 +97,17 @@ docker service update SERVICE_NAME --image IMAGE_NAME
 ## Secrets
 Secrets are configured in `/secrets/` folder. This folder should share the same structure as [`/secrets_template/`](/secrets_template/). The easiest way of setting it up is running 
 ```
-cp secrets_template secrets
+cp -r secrets_template secrets
 ```
 and then filling out the secrets files.
 ```
 secrets
 ├── ca-certificate.crt
 ├── db_connectionstring.json
+├── db_secrets
 └── tf_secrets
 ```
-[`ca-certificate.crt`](/secrets_template/ca-certificate.crt) and [`db_connectionstring.json`](/secrets_template/db_connectionstring.json) are both related to the database connection in [`utils/db.js`](/utils/db.js). [`tf_secrets`](/secrets_template/tf_secrets) is for defining relevant environment variables needed for Terraform's configuration.
+[`ca-certificate.crt`](/secrets_template/ca-certificate.crt), [`db_connectionstring.json`](/secrets_template/db_connectionstring.json) and [`db_secrets`](/secrets_template/db_secrets) are all related to the database connection in [`utils/db.js`](/utils/db.js) and [`utils/sequilize.js`](/utils/sequilize.js). [`tf_secrets`](/secrets_template/tf_secrets) is for defining relevant environment variables needed for Terraform's configuration.
 
 
 ## Terraform

@@ -11,10 +11,10 @@ const session = require('express-session');
 const expressLayouts = require('express-ejs-layouts');
 const bcrypt = require('bcrypt');
 const MD5 = require('crypto-js/md5');
-const { pool, init_DB, query, execute, get_user_id} = require('./utils/db');
+//const { pool, init_DB, query, execute, get_user_id} = require('./utils/db');
 
 // Import the sequlize functionality
-const { Account, Message, Follower } = require('./utils/sequilize');
+const { Account, Message, Follower, get_user_id } = require('./utils/sequilize');
 const { Sequelize } = require('sequelize');
 
 

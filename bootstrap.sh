@@ -31,6 +31,13 @@ terraform -chdir=./terraform validate
 echo -e "\n--> Creating Infrastructure\n"
 terraform -chdir=./terraform apply -auto-approve
 
+# scp secrets to prod.env
+echo -e "\n--> Copying secrets to swarm leader\n"
+scp \
+    -r \
+    -i ssh_key/terraform \
+    ./secrets root@$(terraform -chdir=./terraform output -raw minitwit-swarm-leader-ip-address):/root
+
 # deploy the stack to the cluster
 echo -e "\n--> Deploying the Minitwit stack to the cluster\n"
 scp \
@@ -41,7 +48,7 @@ ssh \
     -o 'StrictHostKeyChecking no' \
     root@$(terraform -chdir=./terraform output -raw minitwit-swarm-leader-ip-address) \
     -i ssh_key/terraform \
-    'docker stack deploy minitwit -c compose/compose.swarm.yaml'
+    'docker stack deploy minitwit -c compose/compose.prod.yaml'
 
 echo -e "\n--> Done bootstrapping Minitwit"
 echo -e "--> Site will be avilable @ http://$(terraform -chdir=./terraform output -raw public_ip)"

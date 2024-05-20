@@ -1,21 +1,22 @@
-services:
+version: '3.8'
 
+services:
   minitwit:
-    container_name: MiniTwit
-    image: zelcam4ever/itu-minitwit:latest
+    image: jeffjeffersonthe2nd/minitwit:latest
     ports: 
-      - 5000:5000
+      - "5000:5000"
     env_file:
-      - prod.env
+      - ../secrets/db_secrets.env
     volumes:
       - ../secrets:/express-docker/secrets
 
   minitwit-api:
-    container_name: API
-    image: zelcam4ever/itu-minitwit-api:latest
+    image: jeffjeffersonthe2nd/minitwit-api:latest
     ports:
-      - 5001:5001
+      - "5001:5001"
     env_file:
-      - prod.env
+      - ../secrets/db_secrets.env
     volumes:
       - ../secrets:/express-docker/secrets
+    
+
