@@ -78,6 +78,19 @@ jobs:
       - name: Set permissions for SSH key
         run: chmod 600 ssh_key/terraform
         
-      - name: Copy secrets to swarm leader
-        run: scp -i ssh_key/terraform -o StrictHostKeyChecking=no -r secrets root@${{ env.swarm_leader_ip }}:/root
-          
+      - name: Copy files to swarm leader
+        run: |
+          scp -i ssh_key/terraform -o StrictHostKeyChecking=no -r secrets root@${{ env.swarm_leader_ip }}:/root
+          scp -i ssh_key/terraform -o StrictHostKeyChecking=no -r compose root@${{ env.swarm_leader_ip }}:/root
+
+      - name: SSHing and Deploying
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ env.swarm_leader_ip }}
+          username: root
+          key: ${{ secrets.SERVER_PRIVATE_KEY }}
+          script_stop: true
+          command_timeout: 200m
+          script: |
+            cd /root
+            docker stack deploy -c compose/compose.prod.yaml minitwit      
