@@ -62,7 +62,12 @@ jobs:
           echo "${{ secrets.TERRAFORM }}" > ssh_key/terraform
           echo "${{ secrets.TERRAFORM_PUB }}" > ssh_key/terraform.pub
 
-          export TF_VAR_do_token=${{ secrets.TF_VAR_DO_TOKEN }}
+      - name: Set DO token
+        env:
+          TF_VAR_do_token: ${{ secrets.TF_VAR_DO_TOKEN }}
+        run: |
+          echo "export TF_VAR_do_token=$TF_VAR_do_token" >> $BASH_ENV
+          source $BASH_ENV  # Load the environment variable
 
 
       - name: Bootstrap terraform and push app
