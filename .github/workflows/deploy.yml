@@ -78,18 +78,32 @@ jobs:
       - name: Set permissions for SSH key
         run: chmod 600 ssh_key/terraform
         
-      - name: Copy files to swarm leader
+      - name: Get IP Addresses
+        id: get_ips
         run: |
-          scp -i ssh_key/terraform -o StrictHostKeyChecking=no -r secrets root@${{ env.swarm_leader_ip }}:/root
-          scp -i ssh_key/terraform -o StrictHostKeyChecking=no -r compose root@${{ env.swarm_leader_ip }}:/root
+          leader_ip=$(terraform -chdir=./terraform output -raw minitwit-swarm-leader-ip-address)
+          manager_ips=$(terraform -chdir=./terraform output -json minitwit-swarm-manager-ip-address | jq -r '.[]')
+          worker_ips=$(terraform -chdir=./terraform output -json minitwit-swarm-worker-ip-address | jq -r '.[]')
 
-      - name: SSHing and Deploying
+          echo "leader_ip=$leader_ip" >> $GITHUB_ENV
+          echo "manager_ips=$manager_ips" >> $GITHUB_ENV
+          echo "worker_ips=$worker_ips" >> $GITHUB_ENV
+
+      - name: Copy files to all nodes
+        run: |
+          all_ips=($leader_ip $manager_ips $worker_ips)
+          for ip in "${all_ips[@]}"; do
+            echo -e "\n--> Copying secrets to $ip\n"
+            scp -i ssh_key/terraform -o StrictHostKeyChecking=no -r secrets root@$ip:/root
+          done
+
+      - name: Deploy stack on swarm leader
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ env.swarm_leader_ip }}
+          host: ${{ env.leader_ip }}
           username: root
           key: ${{ secrets.TERRAFORM }}
           script_stop: true
           command_timeout: 2000m
           script: |
-            docker stack deploy -c compose/compose.prod.yaml minitwit      
+            docker stack deploy -c /root/compose/compose.prod.yaml minitwit
