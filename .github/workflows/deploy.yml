@@ -48,6 +48,9 @@ jobs:
         with:
           terraform_version: 1.0.0  # Replace with the version you need
 
+      - name: Copy secrets structure
+        run: cp secrets_template secrets
+
       - name: Export environment variables
         run: |
           echo "export TF_VAR_do_token=${{ secrets.TF_VAR_DO_TOKEN }}" >> tf_secrets
