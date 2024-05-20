@@ -46,7 +46,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.0.0  # Replace with the version you need
+          terraform_version: 1.8.3
 
       - name: Setup Secrets
         run: |
@@ -58,9 +58,9 @@ jobs:
           echo "POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}" >> secrets/db_secrets.env
           echo "POSTGRES_NAME=${{ secrets.POSTGRES_NAME }}" >> secrets/db_secrets.env
           echo "${{ secrets.CA_CERTIFICATE }}" > secrets/ca-certificate.crt
-          mkdir sshkey
-          echo "${{ secrets.TERRAFORM  }}" > sshkey/terraform
-          echo "${{ secrets.TERRAFORM_PUB  }}" > sshkey/terraform.pub
+          mkdir ssh_key
+          echo "${{ secrets.TERRAFORM }}" > ssh_key/terraform
+          echo "${{ secrets.TERRAFORM_PUB }}" > ssh_key/terraform.pub
 
 
       - name: Bootstrap terraform and push app
