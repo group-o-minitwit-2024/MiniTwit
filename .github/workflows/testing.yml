@@ -17,4 +17,4 @@ jobs:
     - name: build required docker images
       run: bash build.sh
     - name: run docker compose
-      run: docker compose -f compose.test.yaml up --abort-on-container-exit
+      run: docker compose -f ./compose/compose.test.yaml up --abort-on-container-exit

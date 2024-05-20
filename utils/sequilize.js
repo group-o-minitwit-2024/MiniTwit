@@ -1,13 +1,23 @@
 const { Sequelize, Op, Model, DataTypes } = require('sequelize');
 
-const sequelize = new Sequelize(
-  `postgres://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@db:${process.env.POSTGRES_PORT}/minitwit`, 
-  { // Sequlieze connection for postgres
-    logging: console.log
-});
+const dbConnectionType = process.env.DB_CONNECTION_TYPE;
+
+var sequelize;
+if (dbConnectionType === 'dev_db') {
+  sequelize = new Sequelize(
+    `postgres://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@${process.env.POSTGRES_HOST}:${process.env.POSTGRES_PORT}/minitwit`, 
+    { // Sequlieze connection for postgres
+      logging: console.log
+  });
+  console.log(`postgres://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@${process.env.POSTGRES_HOST}:${process.env.POSTGRES_PORT}/minitwit`)
+
+} else if (dbConnectionType === 'prod') {
+  // raise error
+  throw new Error('Not implemented yet');
+}
+
 
 //127.0.0.1
-console.log(`postgres://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@db:${process.env.POSTGRES_PORT}/minitwit`)
 // sequelize.authenticate().then(() => {
 //     console.log('Connection has been established successfully.');
 //  }).catch((error) => {

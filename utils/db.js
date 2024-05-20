@@ -9,28 +9,24 @@ const { Sequelize } = require('sequelize');
 // PostgreSQL
 let pool = new Pool();
 const SCHEMA_FILE_PATH = 'src/utils/schema_postgres.sql';
-let run_type = process.env.RUN_TYPE || 'dev';
+const dbConnectionType = process.env.DB_CONNECTION_TYPE;
 
-if (run_type === 'compose') {
+if (dbConnectionType === 'dev_db') {
   pool = new Pool({
     user: process.env.POSTGRES_USER,
-    host: 'db',
+    host: process.env.POSTGRES_HOST,
     database: process.env.POSTGRES_DB,
     password: process.env.POSTGRES_PASSWORD,
     port: process.env.POSTGRES_PORT,
   });
     
-} else if (run_type === 'prod') {
+} else if (dbConnectionType === 'prod') {
   const ca_file = fs.readFileSync('/express-docker/secrets/ca-certificate.crt');
   const connectionstring_data = fs.readFileSync('/express-docker/secrets/db_connectionstring.json', 'utf-8');
   const connectionstring = JSON.parse(connectionstring_data);
   connectionstring.ssl = { ca: ca_file };
     
   pool = new Pool(connectionstring);
-
-} else if (run_type === 'dev') {
-  // IMPLEMENT ME
-  throw new Error('Not implemented');
 }
 
 let attempt = 0;
