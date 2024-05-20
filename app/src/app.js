@@ -307,23 +307,19 @@ app.get('/:username', async (req, res) => {
 
     // Fetch messages for the profile user
     const messages = await Message.findAll({
-      attributes: [
-        'message_id',
-        'author_id',
-        'text',
-        'pub_date',
-        [Sequelize.literal('"Account"."user_id"'), 'user_id'],
-        [Sequelize.literal('"Account"."username"'), 'username'],
-        [Sequelize.literal('"Account"."email"'), 'email']
-      ],
-      include: [{
-        model: Account,
-        attributes: [], // Don't fetch any additional attributes from the Account model
-        where: { user_id: profile_user.user_id }
-      }],
+      where: {
+        author_id: profile_user.user_id
+      },
       order: [['pub_date', 'DESC']],
       limit: PER_PAGE,
       raw: true
+    });
+
+    // Add user_id, username, and email to each message
+    messages.forEach(msg => {
+      msg.user_id = profile_user.user_id;
+      msg.username = profile_user.username;
+      msg.email = profile_user.email;
     });
     
     // Render the timeline template with messages and other data
