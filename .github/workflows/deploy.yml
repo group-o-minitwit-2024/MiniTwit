@@ -82,19 +82,23 @@ jobs:
         id: get_ips
         run: |
           leader_ip=$(terraform -chdir=./terraform output -raw minitwit-swarm-leader-ip-address)
-          manager_ips=$(terraform -chdir=./terraform output -json minitwit-swarm-manager-ip-address | jq -r '.[]')
-          worker_ips=$(terraform -chdir=./terraform output -json minitwit-swarm-worker-ip-address | jq -r '.[]')
-
+          manager_ips=$(terraform -chdir=./terraform output -json minitwit-swarm-manager-ip-address | jq -r '.[]' | paste -sd "," -)
+          worker_ips=$(terraform -chdir=./terraform output -json minitwit-swarm-worker-ip-address | jq -r '.[]' | paste -sd "," -)
+  
           echo "leader_ip=$leader_ip" >> $GITHUB_ENV
           echo "manager_ips=$manager_ips" >> $GITHUB_ENV
           echo "worker_ips=$worker_ips" >> $GITHUB_ENV
-
+  
       - name: Copy files to all nodes
         run: |
-          all_ips=($leader_ip $manager_ips $worker_ips)
+          IFS=',' read -r -a manager_ips <<< "$manager_ips"
+          IFS=',' read -r -a worker_ips <<< "$worker_ips"
+          all_ips=("$leader_ip" "${manager_ips[@]}" "${worker_ips[@]}")
           for ip in "${all_ips[@]}"; do
             echo -e "\n--> Copying secrets to $ip\n"
             scp -i ssh_key/terraform -o StrictHostKeyChecking=no -r secrets root@$ip:/root
+            echo -e "\n--> Copying compose to $ip\n"
+            scp -i ssh_key/terraform -o StrictHostKeyChecking=no -r compose root@$ip:/root
           done
 
       - name: Deploy stack on swarm leader
