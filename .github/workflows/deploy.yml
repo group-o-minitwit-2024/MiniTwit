@@ -31,7 +31,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./app
-          file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/minitwit:latest
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/minitwit:webbuildcache
@@ -41,11 +40,10 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./API
-          file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/itu-minitwit-api:latest
-          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/itu-minitwit-api:apibuildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/itu-minitwit-api:apibuildcache,mode=max
+          tags: ${{ secrets.DOCKER_USERNAME }}/minitwit-api:latest
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/minitwit-api:apibuildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/minitwit-api:apibuildcache,mode=max
 
       - name: Setup Terraform
             uses: hashicorp/setup-terraform@v3
