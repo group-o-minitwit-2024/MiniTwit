@@ -75,7 +75,12 @@ jobs:
           terraform -chdir=./terraform validate
 
           echo -e "\n--> Creating Infrastructure\n"
-          terraform -chdir=./terraform apply -auto-approve -var "do_token=${{ secrets.TF_VAR_DO_TOKEN }}" 
+          terraform \
+              -chdir=./terraform \
+              apply -auto-approve \
+              -var "do_token=${{ secrets.TF_VAR_DO_TOKEN }}" \
+              -var "pub_key=${{ secrets.TERRAFORM_PUB }}" \
+              -var "pvt_key=${{ secrets.TERRAFORM }}" \
           echo -e "\n--> Copying secrets to swarm leader\n"
           scp \
               -r \
