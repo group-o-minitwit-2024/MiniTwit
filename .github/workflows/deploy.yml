@@ -62,6 +62,8 @@ jobs:
           echo "${{ secrets.TERRAFORM }}" > ssh_key/terraform
           echo "${{ secrets.TERRAFORM_PUB }}" > ssh_key/terraform.pub
 
+          export TF_VAR_do_token=${{ secrets.TF_VAR_DO_TOKEN }}
+
 
       - name: Bootstrap terraform and push app
         run: |
@@ -71,8 +73,10 @@ jobs:
               -backend-config "key=${{ secrets.STATE_FILE }}" \
               -backend-config "access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
               -backend-config "secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+
           echo -e "\n--> Validating terraform configuration\n"
           terraform -chdir=./terraform validate
+
           echo -e "\n--> Creating Infrastructure\n"
           terraform -chdir=./terraform apply -auto-approve
           echo -e "\n--> Copying secrets to swarm leader\n"
