@@ -110,7 +110,7 @@ app.get('/', async (req, res) => {
           }
         }
       }],
-      order: [['pub_date', 'DESC']],
+      order: [['message_id', 'DESC']],
       limit: PER_PAGE,
       raw: true
     });
@@ -151,7 +151,7 @@ app.get('/public', async (req, res) => {
       where: {
         flagged: 0,
       },
-      order: [['pub_date', 'DESC']],
+      order: [['message_id', 'DESC']],
       limit: PER_PAGE,
       raw: true
     });
@@ -321,7 +321,7 @@ app.get('/:username', async (req, res) => {
         attributes: [], // Don't fetch any additional attributes from the Account model
         where: { user_id: profile_user.user_id }
       }],
-      order: [['pub_date', 'DESC']],
+      order: [['message_id', 'DESC']],
       limit: PER_PAGE,
       raw: true
     });
