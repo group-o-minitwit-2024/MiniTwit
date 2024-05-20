@@ -62,14 +62,6 @@ jobs:
           echo "${{ secrets.TERRAFORM }}" > ssh_key/terraform
           echo "${{ secrets.TERRAFORM_PUB }}" > ssh_key/terraform.pub
 
-      - name: Set DO token
-        env:
-          TF_VAR_do_token: ${{ secrets.TF_VAR_DO_TOKEN }}
-        run: |
-          echo "export TF_VAR_do_token=$TF_VAR_do_token" >> $BASH_ENV
-          source $BASH_ENV  # Load the environment variable
-
-
       - name: Bootstrap terraform and push app
         run: |
           echo -e "\n--> Initializing terraform\n"
@@ -83,7 +75,7 @@ jobs:
           terraform -chdir=./terraform validate
 
           echo -e "\n--> Creating Infrastructure\n"
-          terraform -chdir=./terraform apply -auto-approve
+          terraform -chdir=./terraform apply -auto-approve -var "do_token=${{ secrets.TF_VAR_DO_TOKEN }}" 
           echo -e "\n--> Copying secrets to swarm leader\n"
           scp \
               -r \
