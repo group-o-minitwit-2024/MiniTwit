@@ -297,9 +297,12 @@ app.get('/:username', async (req, res) => {
 
     // Check if the logged-in user follows the profile user
     if (req.session.user) {
-      await Follower.findOne({
+      var is_following = await Follower.findOne({
         where: { who_id: req.session.user.user_id, whom_id: profile_user.user_id }
       });
+      if (is_following) {
+        followed = true;
+      }
     }
 
     // Fetch messages for the profile user
