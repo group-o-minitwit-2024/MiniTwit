@@ -63,7 +63,7 @@ jobs:
           echo "${{ secrets.TERRAFORM_PUB }}" > ssh_key/terraform.pub
           cp -r ssh_key terraform
 
-      - name: Bootstrap terraform and push app
+      - name: Apply Terraform Configuration
         run: |
           echo -e "\n--> Initializing terraform\n"
           terraform -chdir=./terraform init \
@@ -79,23 +79,15 @@ jobs:
           terraform -chdir=./terraform apply -auto-approve \
               -var "do_token=${{ secrets.TF_VAR_DO_TOKEN }}"
 
-          echo -e "\n--> Copying secrets to swarm leader\n"
-          scp \
-              -r \
-              -i ssh_key/terraform \
-              ./secrets root@$(terraform -chdir=./terraform output -raw minitwit-swarm-leader-ip-address):/root
-          echo -e "\n--> Deploying the Minitwit stack to the cluster\n"
-          scp \
-              -r \
-              -i ssh_key/terraform \
-              ./compose root@$(terraform -chdir=./terraform output -raw minitwit-swarm-leader-ip-address):/root
-          ssh \
-              -o 'StrictHostKeyChecking no' \
-              root@$(terraform -chdir=./terraform output -raw minitwit-swarm-leader-ip-address) \
-              -i ssh_key/terraform \
-              'docker stack deploy minitwit -c compose/compose.prod.yaml'
+      - name: output raw swarm leader ip
+        run: |
+          echo "swarm_leader_ip=$(terraform -chdir=./terraform output -raw minitwit-swarm-leader-ip-address)" >> $GITHUB_ENV
 
-          echo -e "\n--> Done bootstrapping Minitwit"
-          echo -e "--> Site will be avilable @ http://$(terraform -chdir=./terraform output -raw public_ip)"
-          echo -e "--> ssh to swarm leader with 'ssh root@$(terraform -chdir=./terraform output -raw minitwit-swarm-leader-ip-address) -i ssh_key/terraform'"
-          echo -e "--> To remove the infrastructure run: terraform destroy -auto-approve"
+      - name: copying secrets to swarm leader
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ env.swarm_leader_ip }}
+          username: root
+          key: ${{ secrets.TERRAFORM }}
+          source: secrets
+          target: /root
