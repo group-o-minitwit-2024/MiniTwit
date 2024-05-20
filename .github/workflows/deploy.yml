@@ -75,7 +75,9 @@ jobs:
         run: |
           echo "swarm_leader_ip=$(terraform -chdir=./terraform output -raw minitwit-swarm-leader-ip-address)" >> $GITHUB_ENV
 
-      - name: Copy secrets to swarm leader
-        run: |
-          scp -i ssh_key/terraform -o StrictHostKeyChecking=no -r secrets root@${{ env.swarm_leader_ip }}:/root
+      - name: Set permissions for SSH key
+        run: chmod 600 ssh_key/terraform
         
+      - name: Copy secrets to swarm leader
+        run: scp -i ssh_key/terraform -o StrictHostKeyChecking=no -r secrets root@${{ env.swarm_leader_ip }}:/root
+          
