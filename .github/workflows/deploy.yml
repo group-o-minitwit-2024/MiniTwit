@@ -88,9 +88,8 @@ jobs:
         with:
           host: ${{ env.swarm_leader_ip }}
           username: root
-          key: ${{ secrets.SERVER_PRIVATE_KEY }}
+          key: ${{ secrets.TERRAFORM }}
           script_stop: true
-          command_timeout: 200m
+          command_timeout: 2000m
           script: |
-            cd /root
             docker stack deploy -c compose/compose.prod.yaml minitwit      
