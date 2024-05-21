@@ -1,13 +1,37 @@
+const fs = require('fs');
 const { Sequelize, Op, Model, DataTypes } = require('sequelize');
 
-const sequelize = new Sequelize(
-  `postgres://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@db:${process.env.POSTGRES_PORT}/minitwit`, 
-  { // Sequlieze connection for postgres
-    logging: console.log
-});
+
+const dbConnectionType = process.env.DB_CONNECTION_TYPE;
+
+let sequelize;
+if (dbConnectionType === 'dev_db') {
+  sequelize = new Sequelize(
+    `postgres://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@${process.env.POSTGRES_HOST}:${process.env.POSTGRES_PORT}/minitwit`, 
+    { // Sequlieze connection for postgres
+      logging: console.log
+  });
+  console.log(`postgres://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@${process.env.POSTGRES_HOST}:${process.env.POSTGRES_PORT}/minitwit`)
+
+} else if (dbConnectionType === 'prod') {
+
+  const ca_file = fs.readFileSync('/express-docker/secrets/ca-certificate.crt');
+ 
+  sequelize = new Sequelize(process.env.POSTGRES_NAME, process.env.POSTGRES_USER, process.env.POSTGRES_PASSWORD, {
+    host: process.env.POSTGRES_HOST,
+    port: process.env.POSTGRES_PORT,
+    dialect: 'postgres',
+    dialectOptions: {
+      ssl: {
+        ca: ca_file
+      }
+    }
+  });
+  //throw new Error('Not implemented yet');
+}
+
 
 //127.0.0.1
-console.log(`postgres://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@db:${process.env.POSTGRES_PORT}/minitwit`)
 // sequelize.authenticate().then(() => {
 //     console.log('Connection has been established successfully.');
 //  }).catch((error) => {
@@ -127,7 +151,16 @@ async function testDatabase() {
   }
 }
 
+const get_user_id = async (username) => {
+  const user = await Account.findOne({
+      attributes: ['user_id'],
+      where: {
+        username: username
+      }
+    });
+  return user ? user.user_id : null;
+};
+
 
 // Export the models
-module.exports = { testDatabase, Account, Follower, Message, sequelize, Op };
-
+module.exports = { testDatabase, Account, Follower, Message, sequelize, Op, get_user_id };

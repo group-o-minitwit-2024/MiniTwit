@@ -1,6 +1,6 @@
 .venv/
 __pycache__/
-
+.htpasswd
 # ignore /utils folder in app and API
 app/*/utils/
 API/*/utils/
