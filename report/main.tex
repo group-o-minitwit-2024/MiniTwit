@@ -1,0 +1,149 @@
+\documentclass[11pt]{article}
+\usepackage[english]{babel}\usepackage[a4paper, margin=1.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage[authoryear]{natbib}
+\usepackage{graphicx}
+\usepackage{setspace} % Set line spacing
+\usepackage{float}
+
+
+\setstretch{1} % Single line spacing
+
+\title{DevOps, Software Evolution and Software Maintenance}
+\author{mkrh, mahf, jkau, lakj, ezpa}
+\date{23 May 2024}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+
+\section{System's Perspective}
+\subsection{Technology Stack}
+Our technology stack, as seen in figure \ref{fig:dev-stack}, consists of Express.js and Node.js for both the front-end and back-end, utilizing JavaScript, Mocha, and WebdriverIO for end-to-end testing. Our database is managed by a PostgreSQL server and queried from the frontend with the ORM package Sequelize. It is hosted on a database cluster provided by Digital Ocean. The application itself is deployed on a Digital Ocean droplet. For monitoring and observability, we employ Prometheus for collecting metrics, and visualize the metrics using Grafana. Containerization and orchestration are handled by Docker and Docker Swarm, respectively. Continuous Integration and Continuous Deployment (CI/CD) pipelines are automated through GitHub Actions. Logging of MiniTwit is managed using the EFK (Elasticsearch, Filebeat, Kibana) stack. Currently, the logging is implemented with Sequalize, which sends the logs to the console (stderror or stdout). Filebeat gathers these logs from the console, and ships them to Elasticsearch. There it is indexed and stored, and Kibana provides a interface to search, analyze, and visualize the logs.
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{pictures/techstack.png}
+    \caption{Overview of development stack, with each element grouped by use case.}
+    \label{fig:dev-stack}
+\end{figure}
+
+\subsubsection{Arguments for Choice of Technology Stack}
+\textbf{Express.js}, built on Node.js, is renowned for its non-blocking, event-driven architecture, which enhances performance and scalability and is well build and modern maintained programming language. By leveraging Express.js, we unify our technology stack under JavaScript for both front-end and back-end development which is neat for a simple webpage. Express.js integrates well with a wide array of modern development tools and services due to the extensive eco system of npm packages. Everything from PostgreSQL, Sequelize, WebdriverIO to small packages like express-flash (that made the refactor more simple).
+
+Furthermore, JavaScript is the most used programming language in the world \citep{javascript_good}. When working in an interdisciplinary team with different backgrounds and skill sets, one should choose a language that all members can actively contribute to, even if they have no prior experience with the specific language. JavaScript fulfills this criteria, with it being a widely known, high level programming language, and extensively documented. This allowed every member to contribute to the development of the app, whereas a lower level language with a higher barrier to entry would discourage collaboration. 
+
+
+\subsubsection{Arguments for choice of Virtualization Techniques and Deployment Targets}
+Docker is a great choice for making environments portable across different systems and machines. It encapsulates the dependencies needed for development and the use of Dockerhub allows to centralize the repository for the docker images. Furthermore, we implement Docker Swarm so that we can scale our service horizontally across multiple hosts. When coupled with Terraform, it enables us to easily scale the amount of droplets for the swarm based on demand. Docker was voted \#1 Most-used developer tool by Stack-Overflow 2023 Developer Survey \citep{docker_no1} and therefor familiarising ourselves with it can improve our CV and work opportunities.
+The choice of Digital Ocean as a cloud provider was mainly based on recommendations and cost. Cloud providers can be very expansive and Digital Ocean provided us with a 200 USD free spending cap since we are students.
+
+\section{Process' Perspective}
+The following diagram describes the Process Development Landscape:
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{pictures/process.png}
+    \caption{Process' Landscape}
+    \label{fig:process-overview}
+\end{figure}
+
+\subsection{Implementing CI\/CD with GitHub Actions}
+\textbf{A complete description of stages and tools included in the CI/CD chains, including deployment and release of your systems - Remember to log and provide good arguments for the choice of CI/CD system, i.e., why do you choose your solution instead of any other?}
+For our CI/CD pipeline we use Github Actions. A study shows that GitHub Actions has become the most popular CI service, surpassing older, popular options like Jenkins and Travis CI \citep{github_actions_good}. The authors provide several reasons for this shift. First and foremost is the seamless integration with GitHub. GitHub Actions benefits from its native integration with GitHub repositories. This close integration simplifies setup, maintenance, and overall workflow, making it a superior choice compared to other CI services like Travis CI or Jenkins, which might require additional configuration for GitHub projects. This seamless integration ensures that changes made in the repository are immediately reflected in the CI/CD process. 
+Secondly, GitHub Actions offers predefined workflows and a wide array of reusable actions, significantly simplifying the setup of CI/CD pipelines. This feature allows us to quickly implement robust pipelines without needing to build everything from scratch. This approach not only speeds up the development process but also reduces the potential for errors, as these actions are maintained by the community and are regularly updated.
+Thirdly, cost-effectiveness plays a major role as well. GitHub Actions offers a free tier, which gives an advantage for open-source projects and smaller teams like ours. \\
+The paper argues that these three points are a big contributor to the rise of GitHub Actions in the CI\/CD space. Moreover, with more users adopting GitHub Actions, there are more forum posts, blog posts, guides, and tutorials available, increasing our odds of finding solutions to problems we encounter or detailed guides to specific workflows we need to implement. 
+
+
+
+\subsection{How do you monitor your systems and what precisely do you monitor?}
+
+For system monitoring, we use \textit{Prometheus} and \textit{Grafana}. These services are separated from the rest of MiniTwit into their own repository\footnote{\url{https://github.com/group-o-minitwit-2024/MiniTwit-monitoring}}. We use Prometheus for collecting metrics from both \textit{MiniTwit} and \textit{MiniTwit-api}. To this end, both applications expose a \texttt{/metrics} endpoint that exposes metrics for Prometheus to scrape. Prometheus regularly scrapes all of MiniTwit for these metrics as defined in the \href{https://github.com/group-o-minitwit-2024/MiniTwit-monitoring/blob/main/prometheus/prometheus.yml}{\texttt{prometheus.yml}} file. It is configured for both collecting metrics from the production system as well as a local instance. 
+
+Grafana is used to aggregate and visualize data collected by Prometheus. It integrates natively with Prometheus as a datasource, which is automatically configured through Grafana's \href{https://github.com/group-o-minitwit-2024/MiniTwit-monitoring/blob/main/grafana/provisioning/datasources/datasources.yaml}{\texttt{datasources.yml}} configuration file. A dashboard is also automatically setup with some of the metrics Prometheus collects. 
+
+With this Prometheus and Grafana stack, we collect real-time information about MiniTwit's current traffic and state, as seen in figure \ref{fig:grafana}. Specifically, we currently monitor CPU usage, the rate of traffic and the response time distribution, all of which are shown for both the app and the api. These metrics are collected and monitored, as they give an indication of how ........
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.75\linewidth]{pictures/grafana.png}
+    \caption{Grafana}
+    \label{fig:grafana}
+\end{figure}
+
+How do we deploy it?
+    Why not with rest of MiniTwit?
+
+
+\subsection{What do you log in your systems and how do you aggregate logs?}
+With our EFK stack we plan to log every single interaction a user might have with the website, as well as all the logs provided by docker. The sequalize.js file logs each user interaction to the console. In our \texttt{filebeat.yml} file, we specify a process called \textit{add\_docker\_metadata} which annotates each event with relevant metadata from Docker containers\footnote{\url{https://www.elastic.co/guide/en/beats/filebeat/current/add-docker-metadata.html}}. With Kibana, we create two index patterns; one that has logs from the website, and one that has logs from Docker. 
+
+
+
+
+\subsection{Brief results of the security assessment and brief description of how did you harden the security of your system based on the analysis}
+\subsection{Applied strategy for scaling and upgrades}
+
+\subsection{Role of AI in the development process}
+
+\subsection{Risk Identification}
+1) Identify assets (e.g. web application).\\
+2) Identify threat sources (e.g. SQL injection) \\
+3) Construct risk scenarios (e.g. Attacker performs SQL injection on web application to download sensitive user data
+
+\subsection{Risk Analysis}
+1) Determine likelihood \\
+2) Determine immpact \\
+3) Use a Risk Matrix to prioritize risk of scenarios \\
+4) Discuss what are you going to about each of the scenarios.  
+
+
+\section{Lessons Learned Perspective}
+The biggest lessons learned relate to the overall structuring and development of a larger collaborative project. While we attained significant hands-on experience with new tools and technologies, we found more value in learning to work together in a team with widely varied skill sets and backgrounds. When someone initially developed features early in the project, we would spend great time knowledge sharing and ensuring everyone understood, what was going on. However, as we got further into the project, less knowledge was shared, while no documentation was written, leading to a decrease in productivity, as it became an increasingly daunting task to develop on the evergrowing complex system. This issue influenced the teams productivity both in terms of maintenance and evolution, since it was hard to work on elements without any knowledge. This is reflected in many of our GitHub Issues being left open for months at a time, preventing an agile workflow. One example of this is seen in the issue \href{https://github.com/group-o-minitwit-2024/MiniTwit/issues/37}{\textit{"Race condition with regards to database initialization and app execution in compose \#37"}}. This maintenance task was left open for approximately 2 months, despite its relative simplicity. The biggest factor as to why this was not solved sooner is the lack of knowledge sharing, which turned a simple maintenance task into a whole self study on the infrastructure and networking of the app. This is just one example, but has been a problem all throughout the project. \\
+
+Another lesson learned is that we should prioritize the integration of new features. When working, we had a tendency to try to perfect every little detail of an implementation before merging, leading to long development times, and minimal feedback. This had the consequence of work being invisible, and when something was finally done, there would be a huge batch of code that needs merging with the master branch and to be deployed. This is contradictory to the principle of flow \citep{devops_handbook}, where work should be visible and often integrated. It also meant that there was no feedback flow, leading to stagnating development. One example of this is with our integration of \textit{Docker Swarm} and \textit{Terraform}. Both of these individually are huge steps which have major ramifications for the existing code and infrastructure. However, both was developed on one branch and merged in the same pull request (see pull request \href{https://github.com/group-o-minitwit-2024/MiniTwit/pull/64}{\textit{"Docker Swarm and Infrastructure as code \#64"}}), leading to a longer than needed development time, a huge bulk of code, and a lot of minor details that needed to be tuned in production. In retrospect, it would have been better to either do Docker Swarm first, or do both of them in parallel but separated with smaller incremental developments. 
+
+Lastly, write about the fear of fucking up hindering development!!! Use example of indeces on prod database (I will write tomorrow, but fml I don't want to work anymore :))))
+
+
+% \begin{itemize}
+%     \item A lot of new tech tools
+%     \item Sharpened proficiency of already known tools
+%     \item Working in a collaborative environment - with different backgrounds
+%     \item Formal procedures for planning and distributing work
+%     \item Working in a larger team - how do we share knowledge and coordinate work with a lot of conflicting schedules
+%     \item Maintenance is difficult, boring, hard (particularly on production infrastructure). 
+% \end{itemize}
+
+
+% Describe the biggest issues, how you solved them, and which are major lessons learned with regards to: evolution and refactoring, operation, and maintence of your ITU-MiniTwit systems. Link back to respective commit messages, issues, tickets, etc. to illustrate these.
+% Also reflect and describe what was the ”DevOps” style of your work. For example, what did you do
+% differently to previous development projects and how did it work?\\
+% \textit{Taken from slides/prep document: }The following general steps will guide you through a security assessment. Consider using them as steps in a report. The report will become a section in your final project report.
+
+
+
+
+
+\bibliographystyle{chicago} 
+\bibliography{references}
+
+\newpage
+
+\include{requirements}
+
+
+\section{Appendix}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{pictures/sql_injections.png}
+    \caption{Caption}
+    \label{fig:sqlinjections}
+\end{figure}
+
+
+
+\end{document}
