@@ -230,3 +230,17 @@ Use `--fix` flag for applying lint changes to file.
 
 ### Dockerfile linting
 For linting dockerfiles, we use [_Hadolint_](https://github.com/hadolint/hadolint). It is _"a smarter Dockerfile linter that helps you build best practice Docker images"_. This linter runs as a GitHub Action on all pushes with files matching path `**/Dockerfile*`. An online version of the linter can be accessed [here](https://hadolint.github.io/hadolint/).
+
+
+### ELK Logging Setup
+Setup some pre-required ENV variables:
+```
+sudo chmod +x setup_elk.sh
+source setup_elk.sh
+```
+Then create password
+```
+printf "USERNAME:$(openssl passwd -crypt PASSWORD)\n" > .htpasswd
+```
+
+If nothing is passed to USERNAME, it will default to the value of `echo $( whoami )`
