@@ -6,55 +6,21 @@ on:
   workflow_dispatch:
   
 name: Report
-  
+
+permissions:
+  contents: write
 jobs:
   build_latex:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Git repository
         uses: actions/checkout@v3
-
-      - name: Modify .tex file
-        run: |
-          sed -i 's/images\//report\/images\//g' report/main.tex
-
-      - name: Compile LaTeX document (first pass)
-        uses: xu-cheng/latex-action@v2
+      - name: Compile LaTeX document
+        uses: xu-cheng/latex-action@v3
         with:
-          root_file: report/main.tex
-
-      - name: Run BibTeX
-        run: |
-          cd report
-          bibtex main
-
-      - name: Compile LaTeX document (second pass)
-        uses: xu-cheng/latex-action@v2
-        with:
-          root_file: report/main.tex
-
-      - name: Compile LaTeX document (final pass)
-        uses: xu-cheng/latex-action@v2
-        with:
-          root_file: report/main.tex
-
-      - name: Move PDF to build directory
-        run: |
-          mkdir -p report/build
-          mv report/main.pdf report/build/MSc_group_o.pdf
-
-      - name: Commit and push generated PDF
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add report/build/MSc_group_o.pdf
-          git commit -m 'Add generated MSc_group_o.pdf'
-          git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            
+          root_file: main.tex
       - name: Upload PDF file
-        uses: actions/upload-artifact@v3
-        with: 
+        uses: actions/upload-artifact@v4
+        with:
           name: PDF
-          path: report/build/MSc_group_o.pdf
+          path: example.pdf 
