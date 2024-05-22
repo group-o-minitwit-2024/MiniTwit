@@ -3,6 +3,14 @@ name: Deploy
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - 'app/**'
+      - 'API/**'
+      - 'utils/**'
+      - 'terraform/**'
+      - 'compose/**'
+  pull_request:
+    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
@@ -108,4 +116,8 @@ jobs:
           script_stop: true
           command_timeout: 2000m
           script: |
-            docker stack deploy -c /root/compose/compose.prod.yaml minitwit
+            docker pull jeffjeffersonthe2nd/minitwit:latest
+            docker pull jeffjeffersonthe2nd/minitwit-api:latest
+
+            docker service update --image jeffjeffersonthe2nd/minitwit:latest minitwit_minitwit
+            docker service update --image jeffjeffersonthe2nd/minitwit-api:latest minitwit_minitwit-api
