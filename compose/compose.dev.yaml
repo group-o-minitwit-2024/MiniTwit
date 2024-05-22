@@ -6,9 +6,6 @@ services:
       - "5000:5000"
     env_file:
       - dev.env
-    networks:
-      - prom_net
-      - db_net
     depends_on:
       db:
         condition: service_healthy
@@ -20,9 +17,6 @@ services:
       - "5001:5001"
     env_file:
       - dev.env
-    networks:
-      - prom_net
-      - db_net
     depends_on:
       db:
         condition: service_healthy
@@ -35,72 +29,9 @@ services:
       - ../utils/schema_postgres.sql:/docker-entrypoint-initdb.d/schema_postgres.sql 
     ports:
       - "5432:5432"
-    networks:
-      - db_net
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 3s
       timeout: 3s
       retries: 3
   
-  elasticsearch:
-    image: "docker.elastic.co/elasticsearch/elasticsearch:7.17.1"
-    environment:
-        - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
-        - "discovery.type=single-node"
-    volumes:
-        - elk_elasticsearch_data:/usr/share/elasticsearch/data
-    networks:
-        - elk
-
-  kibana:
-    image: "docker.elastic.co/kibana/kibana:7.17.1"
-    environment:
-        elasticsearch.hosts: '["http://elasticsearch:9200"]'
-    networks:
-        - elk
-
-  filebeat:
-    image: "docker.elastic.co/beats/filebeat:7.17.1"
-    environment:
-        - "ELK_USER=${ELK_USER}"
-    user: root
-    volumes:
-        - ${ELK_DIR}/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-        - /var/lib/docker:/var/lib/docker:ro
-        - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-        - elk
-          
-  nginx: 
-    image: nginx
-    ports:
-      - 9200:9200
-      - 5601:5601
-      - 8881:8881
-      - 8882:8882
-    networks:
-      - elk
-    volumes:
-      - type: bind
-        source: ${ELK_DIR}/nginx.conf
-        target: /etc/nginx/nginx.conf
-      - type: bind
-        source: ${ELK_DIR}/.htpasswd
-        target: /etc/nginx/.htpasswd
-
-networks:
-  db_net:
-    name: db_net
-    driver: bridge
-    
-  prom_net:
-    name: prom_net
-    driver: bridge
-
-  elk:
-  main:
-    name: itu-minitwit-network
-
-volumes:
-    elk_elasticsearch_data:
