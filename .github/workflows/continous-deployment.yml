@@ -62,10 +62,15 @@ jobs:
         uses: xu-cheng/latex-action@v2
         with:
           root_file: report/main.tex
+      
+      - name: Move PDF to build directory
+        run: |
+            mkdir -p report/build
+            mv report/main.pdf report/build/
   
       - name: Upload PDF file
         uses: actions/upload-artifact@v3
         with: 
           name: PDF
-          path: main.pdf
+          path: report/build/main.pdf
         
