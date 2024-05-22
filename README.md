@@ -57,7 +57,7 @@ Logging of MiniTwit is managed using the EFK (Elasticsearch, Filebeat, Kibana) s
 
 To start, first run:
 ```
-bash setup_elk.sh
+source setup_elk.sh
 ```
 
 Then run:
