@@ -1,10 +1,7 @@
 on:
-    push:
-      # Run workflow every time something is pushed to the main branch
-      branches:
-        - report_changes
-    # allow manual triggers for now too
-    workflow_dispatch:
+  push:
+    paths:
+      - 'report/**'
   
   
 name: Report
@@ -17,13 +14,32 @@ jobs:
         - name: Set up Git repository
           uses: actions/checkout@v3
 
+        - name: Modify .tex file
+          run: |
+            sed -i 's/images\//report\/images\//g' report/main.tex
+
         - name: Compile LaTeX document
           uses: xu-cheng/latex-action@v2
           with:
             root_file: report/main.tex
+
+        - name: Move PDF to build directory
+          run: |
+              mkdir -p report/build
+              mv main.pdf report/build/
+        
+        - name: Commit and push generated PDF
+          run: |
+            git config --global user.name 'github-actions[bot]'
+            git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+            git add report/build/main.pdf
+            git commit -m 'Add generated main.pdf'
+            git push
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             
         - name: Upload PDF file
           uses: actions/upload-artifact@v3
           with: 
             name: PDF
-            path: main.pdf
+            path: report/build/main.pdf
