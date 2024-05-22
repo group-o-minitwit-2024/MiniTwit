@@ -22,11 +22,11 @@
 
 \section{System's Perspective}
 \subsection{Technology Stack}
-Our technology stack, as seen in figure \ref{fig:dev-stack}, consists of Express.js and Node.js for both the front-end and back-end, utilizing JavaScript, Mocha, and WebdriverIO for end-to-end testing. Our database is managed by a PostgreSQL server and queried from the frontend with the ORM package Sequelize. It is hosted on a database cluster provided by Digital Ocean. The application itself is deployed on a Digital Ocean droplet. For monitoring and observability, we employ Prometheus for collecting metrics, and visualize the metrics using Grafana. Containerization and orchestration are handled by Docker and Docker Swarm, respectively. Continuous Integration and Continuous Deployment (CI/CD) pipelines are automated through GitHub Actions. Logging of MiniTwit is managed using the EFK (Elasticsearch, Filebeat, Kibana) stack. Currently, the logging is implemented with Sequalize, which sends the logs to the console (stderror or stdout). Filebeat gathers these logs from the console, and ships them to Elasticsearch. There it is indexed and stored, and Kibana provides a interface to search, analyze, and visualize the logs.
+Our technology stack, as seen in figure \ref{fig:dev-stack}, consists of Express.js and Node.js for both the front-end and back-end, utilizing JavaScript, Mocha, and WebdriverIO for end-to-end testing. Our database is managed by a PostgreSQL server and queried from the frontend with the ORM package Sequelize. It is hosted on a database cluster provided by Digital Ocean. The application itself is deployed on a Digital Ocean droplet. For monitoring and observability, we employ Prometheus for collecting metrics, and visualize the metrics using Grafana. Containerization and orchestration are handled by Docker and Docker Swarm, respectively. Continuous Integration and Continuous Deployment (CI/CD) pipelines are automated through GitHub Actions. Logging of MiniTwit is managed using the EFK (Elasticsearch, Filebeat, Kibana) stack. Currently, the logging is implemented with Sequalize, which sends the logs to the console.  Filebeat gathers these logs from the console, as well as the  and ships them to Elasticsearch. There it is indexed and stored, and Kibana provides a interface to search, analyze, and visualize the logs.
 
 \begin{figure}[!h]
     \centering
-    \includegraphics[width=\textwidth]{images/techstack.png}
+    \includegraphics[width=\textwidth]{report/images/techstack.png}
     \caption{Overview of development stack, with each element grouped by use case.}
     \label{fig:dev-stack}
 \end{figure}
@@ -45,7 +45,7 @@ The choice of Digital Ocean as a cloud provider was mainly based on recommendati
 The following diagram describes the Process Development Landscape:
 \begin{figure}[!h]
     \centering
-    \includegraphics[width=\textwidth]{images/process.png}
+    \includegraphics[width=\textwidth]{report/images/process.png}
     \caption{Process' Landscape}
     \label{fig:process-overview}
 \end{figure}
@@ -65,11 +65,11 @@ For system monitoring, we use \textit{Prometheus} and \textit{Grafana}. These se
 
 Grafana is used to aggregate and visualize data collected by Prometheus. It integrates natively with Prometheus as a datasource, which is automatically configured through Grafana's \href{https://github.com/group-o-minitwit-2024/MiniTwit-monitoring/blob/main/grafana/provisioning/datasources/datasources.yaml}{\texttt{datasources.yml}} configuration file. A dashboard is also automatically setup with some of the metrics Prometheus collects. 
 
-With this Prometheus and Grafana stack, we collect real-time information about MiniTwit's current traffic and state, as seen in figure \ref{fig:grafana}. Specifically, we currently monitor CPU usage, the rate of traffic and the response time distribution, all of which are shown for both the app and the api. These metrics are collected and monitored, as they give an indication of how ........
+With this Prometheus and Grafana stack, we collect real-time information about MiniTwit's current traffic and state, as seen in figure \ref{fig:grafana}. Specifically, we currently monitor CPU usage, the rate of traffic and the response time distribution, all of which are shown for both the app and the api. These metrics are collected and monitored, as they give an indication of the overall system state, if it is overloaded, and if it is experiencing slow response times; all of which are crucial to control in a production environment. 
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.75\linewidth]{images/grafana.png}
+    \includegraphics[width=0.75\linewidth]{report/images/grafana.png}
     \caption{Grafana}
     \label{fig:grafana}
 \end{figure}
@@ -79,14 +79,18 @@ How do we deploy it?
 
 
 \subsection{What do you log in your systems and how do you aggregate logs?}
-With our EFK stack we plan to log every single interaction a user might have with the website, as well as all the logs provided by docker. The sequalize.js file logs each user interaction to the console. In our \texttt{filebeat.yml} file, we specify a process called \textit{add\_docker\_metadata} which annotates each event with relevant metadata from Docker containers\footnote{\url{https://www.elastic.co/guide/en/beats/filebeat/current/add-docker-metadata.html}}. With Kibana, we create two index patterns; one that has logs from the website, and one that has logs from Docker. 
+With our EFK stack we plan to log every single interaction a user might have with the website, as well as all the logs provided by docker. The sequalize.js file logs each user interaction to the console. Provided we had the time, Winston\footnote{\url{https://github.com/winstonjs/winston}} would have been our preferred logging implementation, as it allows for additional logging capabilities. There are mainly two improvements for using Winston over Sequalize: Winston have 7 logging levels, ranging from 0 to 6 and the severity of all levels is assumed to be numerically ascending from most important to least important. This conforms to the severity ordering specified by RFC5424 \citep{rfc5424}. Secondly, Winston allows for the logs to be saved to a specified file, instead of only writing to console. 
+In our \texttt{filebeat.yml} file, we specify a process called \textit{add\_docker\_metadata}, which annotates each event with relevant metadata from Docker containers\footnote{\url{https://www.elastic.co/guide/en/beats/filebeat/current/add-docker-metadata.html}}. This ensures that all logs are enriched with context about their source.\\
+Logs collected by Filebeat are sent to Elasticsearch, where they are indexed and stored. Using Kibana, we create two index patterns: one for logs from the website and another for logs from Docker. This setup allows us to efficiently search, analyze, and visualize logs from different sources in a centralized location. By aggregating logs in this manner, we can monitor system performance, troubleshoot issues, and gain insights into user behavior. 
+
+
 
 
 
 
 \subsection{Brief results of the security assessment and brief description of how did you harden the security of your system based on the analysis}
 \subsection{Applied strategy for scaling and upgrades}
-
+Docker swarm with terraform
 \subsection{Role of AI in the development process}
 
 \subsection{Risk Identification}
@@ -104,7 +108,8 @@ With our EFK stack we plan to log every single interaction a user might have wit
 \section{Lessons Learned Perspective}
 The biggest lessons learned relate to the overall structuring and development of a larger collaborative project. While we attained significant hands-on experience with new tools and technologies, we found more value in learning to work together in a team with widely varied skill sets and backgrounds. When someone initially developed features early in the project, we would spend great time knowledge sharing and ensuring everyone understood, what was going on. However, as we got further into the project, less knowledge was shared, while no documentation was written, leading to a decrease in productivity, as it became an increasingly daunting task to develop on the evergrowing complex system. This issue influenced the teams productivity both in terms of maintenance and evolution, since it was hard to work on elements without any knowledge. This is reflected in many of our GitHub Issues being left open for months at a time, preventing an agile workflow. One example of this is seen in the issue \href{https://github.com/group-o-minitwit-2024/MiniTwit/issues/37}{\textit{"Race condition with regards to database initialization and app execution in compose \#37"}}. This maintenance task was left open for approximately 2 months, despite its relative simplicity. The biggest factor as to why this was not solved sooner is the lack of knowledge sharing, which turned a simple maintenance task into a whole self study on the infrastructure and networking of the app. This is just one example, but has been a problem all throughout the project. \\
 
-Another lesson learned is that we should prioritize the integration of new features. When working, we had a tendency to try to perfect every little detail of an implementation before merging, leading to long development times, and minimal feedback. This had the consequence of work being invisible, and when something was finally done, there would be a huge batch of code that needs merging with the master branch and to be deployed. This is contradictory to the principle of flow \citep{devops_handbook}, where work should be visible and often integrated. It also meant that there was no feedback flow, leading to stagnating development. One example of this is with our integration of \textit{Docker Swarm} and \textit{Terraform}. Both of these individually are huge steps which have major ramifications for the existing code and infrastructure. However, both was developed on one branch and merged in the same pull request (see pull request \href{https://github.com/group-o-minitwit-2024/MiniTwit/pull/64}{\textit{"Docker Swarm and Infrastructure as code \#64"}}), leading to a longer than needed development time, a huge bulk of code, and a lot of minor details that needed to be tuned in production. In retrospect, it would have been better to either do Docker Swarm first, or do both of them in parallel but separated with smaller incremental developments. 
+Another lesson learned is that we should prioritize the integration of new features. When working, we had a tendency to try to perfect every little detail of an implementation before merging, leading to long development times, and minimal feedback. This had the consequence of work being invisible, and when something was finally done, there would be a huge batch of code that needs merging with the master branch and to be deployed. This is contradictory to the principle of flow \citep{devops_handbook}, where work should be visible and often integrated. It also meant that there was no feedback flow, leading to stagnating development. One example of this is with our integration of \textit{Docker Swarm} and \textit{Terraform}. Both of these individually are huge steps which have major ramifications for the existing code and infrastructure. However, both was developed on one branch and merged in the same pull request (see pull request \href{https://github.com/group-o-minitwit-2024/MiniTwit/pull/64}{\textit{"Docker Swarm and Infrastructure as code \#64"}}), leading to a longer than needed development time, a huge bulk of code, and a lot of minor details that needed to be tuned in production. In retrospect, it would have been better to either do Docker Swarm first, or do both of them in parallel but separated with smaller incremental developments. \\
+
 
 Lastly, write about the fear of fucking up hindering development!!! Use example of indeces on prod database (I will write tomorrow, but fml I don't want to work anymore :))))
 
@@ -139,7 +144,7 @@ Lastly, write about the fear of fucking up hindering development!!! Use example 
 \section{Appendix}
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{images/sql_injections.png}
+    \includegraphics[width=0.8\textwidth]{report/images/sql_injections.png}
     \caption{Caption}
     \label{fig:sqlinjections}
 \end{figure}

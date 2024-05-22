@@ -58,20 +58,14 @@ jobs:
             docker compose -f compose.prod.yaml pull
             docker compose -f compose.prod.yaml up -d
   
-      - name: Set up LaTeX environment
-        uses: xu-cheng/latex-action@v3
+      - name: Compile LaTeX document
+        uses: xu-cheng/latex-action@v2
         with:
-            root_file: report/main.tex
-            continue_on_error: true
-
-      - name: Move PDF to build directory
-        run: |
-            mkdir -p report/build
-            mv report/main.pdf report/build/
-        
-      - name: Upload PDF artifact
+          root_file: report/main.tex
+  
+      - name: Upload PDF file
         uses: actions/upload-artifact@v3
-        with:
-            name: report-pdf
-            path: report/build/main.pdf
+        with: 
+          name: PDF
+          path: Report.pdf
         
