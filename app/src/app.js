@@ -1,12 +1,10 @@
 const createError = require('http-errors');
 const express = require('express');
-const fs = require('fs');
 let path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 // Refactored packages
 const flash = require('express-flash');
-const sqlite3 = require('sqlite3').verbose();
 const session = require('express-session');
 const expressLayouts = require('express-ejs-layouts');
 const bcrypt = require('bcrypt');
@@ -62,7 +60,7 @@ const format_datetime = (timestamp) => {
 const gravatarUrl = (email, size = 80) => {
   const hash = MD5(email.trim().toLowerCase()).toString();
   return `http://www.gravatar.com/avatar/${hash}?d=identicon&s=${size}`;
-}
+};
 
 // Add datetimeformat function to locals object, so it can be called in .ejs views
 app.locals.format_datetime = format_datetime;
@@ -75,7 +73,7 @@ app.locals.gravatarUrl = gravatarUrl;
 app.get('/', async (req, res) => {
   // Implement your logic here
   try {
-    console.log("We got a visitor from: ", req.socket.remoteAddress);
+    console.log('We got a visitor from: ', req.socket.remoteAddress);
 
     // Implement your logic here
     let user = null;
@@ -126,10 +124,10 @@ app.get('/', async (req, res) => {
       msg.email = accountMap[msg.author_id].email;
     });
     
-    res.render('timeline.ejs', { user: req.session.user, messages, title: "My Timeline", flashes: req.flash('success'), endpoint: "user_timline" });
+    res.render('timeline.ejs', { user: req.session.user, messages, title: 'My Timeline', flashes: req.flash('success'), endpoint: 'user_timline' });
   } catch (error) {
-    console.error("Error:", error);
-    res.status(500).send("Internal Server Error");
+    console.error('Error: ', error);
+    res.status(500).send('Internal Server Error');
   }
 });
 
@@ -166,10 +164,10 @@ app.get('/public', async (req, res) => {
       raw: true
     });
     
-    res.render('timeline.ejs', { user: req.session.user, messages, title: "Public Timeline", flashes: req.flash('success'), endpoint: '' });
+    res.render('timeline.ejs', { user: req.session.user, messages, title: 'Public Timeline', flashes: req.flash('success'), endpoint: '' });
   } catch (error) {
-    console.error("Error:", error);
-    res.status(500).send("Internal Server Error");
+    console.error('Error:', error);
+    res.status(500).send('Internal Server Error');
   }
 });
 
@@ -211,8 +209,8 @@ app.post('/register', async (req, res) => {
     req.flash('success', 'You were successfully registered and can login now');
     res.redirect('/login');
   } catch (error) {
-    console.error("Error:", error);
-    res.status(500).send("Internal Server Error");
+    console.error('Error:', error);
+    res.status(500).send('Internal Server Error');
   }
 });
 
@@ -249,8 +247,8 @@ app.post('/login', async (req, res) => {
     req.flash('success', 'You were logged in');
     res.redirect('/');
   } catch (error) {
-    console.error("Error:", error);
-    res.status(500).send("Internal Server Error");
+    console.error('Error:', error);
+    res.status(500).send('Internal Server Error');
   }
 });
 
@@ -426,8 +424,8 @@ app.use(function (err, req, res, next) {
 });
 
 app.listen(5000, () => {
-  console.log('Minitwit running at port :5000')
-})
+  console.log('Minitwit running at port :5000');
+});
 
 module.exports = app;
 

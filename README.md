@@ -220,7 +220,11 @@ npm install eslint@8.57.0
 
 Run lint checking with
 ```
+# Run on one file
 npx eslint FILE_NAME
+
+#Run on multiple files
+npx eslint LIB/**
 ```
 Use `--fix` flag for applying lint changes to file.
 
