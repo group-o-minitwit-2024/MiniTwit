@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "start": "node ./src/bin/www",
-    "test": "mocha ./src/tests/*.test.js"
+    "test": "mocha ./src/tests/*.test.js",
+    "wdio": "wdio run ./src/ui_tests/conf/wdio.conf.js",
+    "browserstack": "wdio run ./src/ui_tests/conf/browserstack.conf.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
@@ -26,9 +28,15 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
+    "@wdio/cli": "^8.36.1",
+    "@wdio/local-runner": "^8.36.1",
+    "@wdio/mocha-framework": "^8.36.1",
+    "@wdio/spec-reporter": "^8.36.1",
     "assert": "^2.1.0",
     "chai": "^5.1.0",
     "mocha": "~3.5.3",
-    "supertest": "^6.3.4"
+    "supertest": "^6.3.4",
+    "wdio-browserstack-service": "^0.1.19",
+    "wdio-docker-service": "^3.2.1"
   }
 }
