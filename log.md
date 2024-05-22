@@ -340,3 +340,10 @@ New files are
 * `/temp` - this directory is for storing swarm tokens, outputted by `minitwit_swarm.tf`
 * `ssh_key.tf` - configures the ssh key
 * `/ssh_key` - directory where `terraform` and `terraform.pub` ssh key files are stored
+
+
+### 17/05 - Author: ezpa, mkrh
+* Implemented an EFK stack (Elasticsearch, Filebeat, Kibana). 
+* Uses Sequelize.js to log interactions from users (This should be replaced by Winston if time allows it)
+* Logs from Docker are also gathered, which provide information about the container environment, including resource usage, container status, and events, enriching the logs with context about their operational environment.
+* Currently it only works in a localhost setting. 
