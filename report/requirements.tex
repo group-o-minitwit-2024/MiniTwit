@@ -1,0 +1,69 @@
+\newpage
+
+\subsection{What to include in the report?}
+
+\subsubsection{System's Perspective}
+
+A description and illustration of the:
+
+\begin{itemize}
+    \item Design and architecture of your \textit{ITU-MiniTwit} systems
+    \item All dependencies of your \textit{ITU-MiniTwit} systems on all levels of abstraction and development stages. That is, list and briefly describe all technologies and tools you applied and depend on.
+    \item Important interactions of subsystems
+    \begin{itemize}
+        \item For example, via an illustrative UML Sequence diagram that shows the flow of information through your system from user request in the browser, over all subsystems, hitting the database, and a response that is returned to the user.
+        \item Similarly, another illustrative sequence diagram that shows how requests from the simulator traverse your system.
+    \end{itemize}
+    \item Describe the current state of your systems, for example using results of static analysis and quality assessments.
+\end{itemize}
+MSc should argue for the choice of technologies and decisions for at least all cases for which we asked you to do so in the tasks at the end of each session.
+
+\subsubsection{Process' perspective}
+
+This perspective should clarify how code or other artifacts come from idea into the running system and everything that happens on the way.
+
+In particular, the following descriptions should be included:
+
+\begin{itemize}
+    \item A complete description of stages and tools included in the CI/CD chains, including deployment and release of your systems.
+    \item How do you monitor your systems and what precisely do you monitor?
+    \item What do you log in your systems and how do you aggregate logs?
+    \item Brief results of the security assessment and brief description of how did you harden the security of your system based on the analysis
+    \item Applied strategy for scaling and upgrades
+\end{itemize}
+In case you have used AI-assistants during your project briefly explain which system(s) you used during the project and reflect how it supported/hindered your process.
+
+\subsubsection{Lessons Learned Perspective}
+
+Describe the biggest issues, how you solved them, and which are major lessons learned with regards to:
+
+\begin{itemize}
+    \item evolution and refactoring
+    \item operation, and
+    \item maintenance
+\end{itemize}
+of your \textit{ITU-MiniTwit} systems. Link back to respective commit messages, issues, tickets, etc. to illustrate these.
+
+Also reflect and describe what was the "DevOps" style of your work. For example, what did you do differently to previous development projects and how did it work?
+
+
+ Taken from slides/prep document:
+
+The following general steps will guide you through a security assessment. Consider using them as steps in a report. The report will become a section in your final project report.
+
+\subsubsection{A. Risk Identification}
+
+\begin{enumerate}
+    \item Identify assets (e.g. web application)
+    \item Identify threat sources (e.g. SQL injection)
+    \item Construct risk scenarios (e.g. Attacker performs SQL injection on web application to download sensitive user data)
+\end{enumerate}
+
+\subsubsection{B. Risk Analysis}
+
+\begin{enumerate}
+    \item Determine likelihood
+    \item Determine impact
+    \item Use a Risk Matrix to prioritize risk of scenarios
+    \item Discuss what are you going to do about each of the scenarios
+\end{enumerate}

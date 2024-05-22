@@ -112,7 +112,9 @@ Error: cannot POST /login (500)
 ### 22/03 - Author: ezpa
 * DigitalOcean now retrieves the images from docker-hub, implementing it on the CD pipeline
 
- 
+### 01/04 - Author: jkau
+* Added GitHub Actions for SonarCloud
+* 
 ### 05/05 - Author: mahf
 * Gonna do a refactor of the directory structure.
 * Would be nice with a structure, where each service is separated entirely.
@@ -199,6 +201,9 @@ cp -r ./utils ./API/src
 * I'm not entirely happy with this, but I don't want to spend any more of my saturday on this
 * I also created a [`secrets_template`](/secrets_template/) folder, to be used for copying as `cp secrets_template secrets`, and then filled out with the necessary secrets.
 
+### 06/05 - Author: jkau
+* Created DB Abstraction Layer
+  
 # 10/05 - Author: mahf, mkrh
 We are gonna do docker swarm. And this time, it will work!!!! We are working from *repo-spring-cleaning*, so we are definetily gonna have merge issues, but ¯\\\_(ツ)\_/¯
 
@@ -344,3 +349,8 @@ New files are
 
 # 22/05 (28/04) - Author: lakj
 Added UI Automated tests from ui_automated_tests branch to new file structure setup. Test are runnable with Firefox browser from localmachine. The tests are registering af user, login, and post on timeline. A browserstack is created, such that tests can be executed with browserstack. Requires lakj username and access key from browserstack.
+### 17/05 - Author: ezpa, mkrh
+* Implemented an EFK stack (Elasticsearch, Filebeat, Kibana). 
+* Uses Sequelize.js to log interactions from users (This should be replaced by Winston if time allows it)
+* Logs from Docker are also gathered, which provide information about the container environment, including resource usage, container status, and events, enriching the logs with context about their operational environment.
+* Currently it only works in a localhost setting. 
