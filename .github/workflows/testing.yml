@@ -4,6 +4,12 @@ run-name: ${{ github.actor }} automated testing 🛠️
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - 'app/**'
+      - 'API/**'
+      - 'utils/**'
+      - 'terraform/**'
+      - 'compose/**'
   pull_request:
     branches: [ "main" ]
     

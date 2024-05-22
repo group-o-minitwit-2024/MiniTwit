@@ -4,6 +4,12 @@ name: Continuous Deployment
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - 'app/**'
+      - 'API/**'
+      - 'utils/**'
+      - 'terraform/**'
+      - 'compose/**'
   workflow_dispatch:
 
 
