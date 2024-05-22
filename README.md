@@ -188,6 +188,21 @@ cd API/simulator
 python3 minitwit_simulator.py http://localhost:5001
 ```
 
+## Running the UI Tests
+The automated ui tests are running with Webdriver IO. The tests are located in [`app/src/ui_tests/`](app/src/ui_tests/). The tests can be runned against localhost:5000 or deployed environment. See url in [`app/src/ui_tests/conf/base.conf.js`](app/src/ui_tests/conf/base.conf.js).
+When running from localmachine the following is required:
+```
+cd app
+npm install
+
+npm run wdio
+or
+npm run browserstack 
+```
+wdio runs against localhost:5000
+ 
+browserstack runs against deployed instance url
+
 
 ## Monitoring
 Monitoring of MiniTwit is handled as an external service with `Prometheus` and visualized with `Grafana`, and can be found [here](https://github.com/group-o-minitwit-2024/MiniTwit-monitoring). It connects to `minitwit` and `minitwit-api` on the server ip address in production, or through the docker network `prom_net` in development. Check out the deployed monitoring [here](http://178.62.193.231:3000/d/ediic79ugn1moe/monitortwit?orgId=1&refresh=5s)!

@@ -347,6 +347,8 @@ New files are
 * `/ssh_key` - directory where `terraform` and `terraform.pub` ssh key files are stored
 
 
+# 22/05 (28/04) - Author: lakj
+Added UI Automated tests from ui_automated_tests branch to new file structure setup. Test are runnable with Firefox browser from localmachine. The tests are registering af user, login, and post on timeline. A browserstack is created, such that tests can be executed with browserstack. Requires lakj username and access key from browserstack.
 ### 17/05 - Author: ezpa, mkrh
 * Implemented an EFK stack (Elasticsearch, Filebeat, Kibana). 
 * Uses Sequelize.js to log interactions from users (This should be replaced by Winston if time allows it)
