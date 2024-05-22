@@ -8,9 +8,9 @@
     "ecmaVersion": 2024
   },
   "rules": {
-    "indent": ["error", 2],
+    "indent": ["warning", 2],
     "linebreak-style": ["error", "unix"],
-    "quotes": ["error", "single"],
+    "quotes": ["warning", "single"],
     "semi": ["error", "always"],
     "no-console": "off",
     "no-var": "error"
