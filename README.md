@@ -242,3 +242,5 @@ Then create password
 ```
 printf "USERNAME:$(openssl passwd -crypt PASSWORD)\n" > .htpasswd
 ```
+
+If nothing is passed to USERNAME, it will default to the value of `echo $( whoami )`
