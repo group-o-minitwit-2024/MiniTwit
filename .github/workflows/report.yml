@@ -14,6 +14,10 @@ jobs:
         - name: Set up Git repository
           uses: actions/checkout@v3
 
+        - name: Modify .tex file
+          run: |
+            sed -i 's/images\//report\/images\//g' report/main.tex
+
         - name: Compile LaTeX document
           uses: xu-cheng/latex-action@v2
           with:
