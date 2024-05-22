@@ -48,6 +48,11 @@ for ip in "${all_ips[@]}"; do
     scp -o 'StrictHostKeyChecking no' -r -i ssh_key/terraform ./secrets root@$ip:/root
 done
 
+# generate and scp the load balancer config
+echo -e "\n--> Generating and copying the load balancer config\n"
+bash load_balancer/gen_load_balancer_config.sh
+bash load_balancer/scp_load_balancer_config.sh
+
 # deploy the stack to the cluster
 echo -e "\n--> Deploying the Minitwit stack to the cluster\n"
 scp \
