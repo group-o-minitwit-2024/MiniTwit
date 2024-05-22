@@ -17,7 +17,7 @@
 \author{mkrh, mahf, jkau, lakj, ezpa \\
 \url{https://github.com/group-o-minitwit-2024/MiniTwit}\\
 \url{http://group0minitwit.lol}\\
-\url{http://group0minitwit.lol/api}
+\url{http://188.166.201.104}
 }
 
 \date{23 May 2024}
@@ -151,7 +151,6 @@ To mitigate these risks, we have several strategies (see table \ref{tab:risk-ass
     \begin{tabular}{|p{3cm}|p{2cm}|p{2cm}|p{7cm}|}
         \hline
         \textbf{Risk} & \textbf{Likelihood} & \textbf{Impact} & \textbf{Mitigation Strategy} \\Ideally we could implement multi-factor
-        \hline
         SQL Injection Attack & Likely & catastrophic & We use the ORM Sequelize to avoid raw queries. We should regularly update dependencies. With our monitoring we should try to review the database logs and performance metrics for any suspicious access patterns and unusual spikes. \\
         \hline
         Data Breach & Possible & Catastrophic & We hash sensitive data like passwords and are working on implementing HTTPS (as per writing). We also follow REST API principles. However Sonarcloud points out an issue with HTTP request redirections being open, which we should remedy. Generally we should strive to enforce strong authentication and authorization practices. Looking ahead implementing Automating Pen Testing
