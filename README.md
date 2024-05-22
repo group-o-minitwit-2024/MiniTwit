@@ -57,6 +57,7 @@ Logging of MiniTwit is managed using the EFK (Elasticsearch, Filebeat, Kibana) s
 
 To start, first run:
 ```
+sudo chmod +x setup_elk.sh
 source setup_elk.sh
 ```
 
@@ -77,12 +78,6 @@ docker-compose -f compose.dev.yaml up
 ```
 
 To access the Kibana, go to [http://localhost:5601](http://localhost:5601).
-
-
-
-
-
-
 
 ## Linting
 ### Javascript linting
