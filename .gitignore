@@ -15,6 +15,9 @@ terraform/temp/
 app/*/utils/
 API/*/utils/
 
+# ignore package-lock.json
+*package-lock.json
+
 # Node Project files to ignore
 node_modules/
 

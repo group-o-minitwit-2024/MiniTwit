@@ -15,12 +15,18 @@ CREATE INDEX idx_userid ON account (user_id);
 
 -- Drop table if exists follower
 DROP TABLE IF EXISTS follower;
+DROP INDEX IF EXISTS idx_whoid;
+DROP INDEX IF EXISTS idx_whomid;
 
 -- Create table follower
 CREATE TABLE follower (
   who_id INTEGER,
   whom_id INTEGER
 );
+
+-- Create index on follower
+CREATE INDEX idx_whoid ON follower (who_id);
+CREATE INDEX idx_whomid ON follower (whom_id);
 
 -- Drop table if exists message
 DROP TABLE IF EXISTS message;
