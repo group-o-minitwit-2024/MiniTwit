@@ -105,6 +105,16 @@ jobs:
             scp -i ssh_key/terraform -o StrictHostKeyChecking=no -r secrets root@$ip:/root
           done
 
+          for ip in "${all_ips[@]}"; do
+            echo -e "\n--> Copying compose files to $ip\n"
+            scp -i ssh_key/terraform -o StrictHostKeyChecking=no -r compose root@$ip:/root
+          done
+
+          for ip in "${all_ips[@]}"; do
+            echo -e "\n--> Copying ELK files to $ip\n"
+            scp -i ssh_key/terraform -o StrictHostKeyChecking=no -r ELK root@$ip:/root
+          done
+
       - name: Deploy stack on swarm leader
         uses: appleboy/ssh-action@v1.0.3
         with:
