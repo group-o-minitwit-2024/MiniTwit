@@ -5,6 +5,10 @@
 \usepackage{graphicx}
 \usepackage{setspace} % Set line spacing
 \usepackage{float}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{booktabs}
+
 
 
 \setstretch{1} % Single line spacing
@@ -26,7 +30,7 @@ Our technology stack, as seen in figure \ref{fig:dev-stack}, consists of Express
 
 \begin{figure}[!h]
     \centering
-    \includegraphics[width=\textwidth]{report/images/techstack.png}
+    \includegraphics[width=\textwidth]{images/techstack.png}
     \caption{Overview of development stack, with each element grouped by use case.}
     \label{fig:dev-stack}
 \end{figure}
@@ -45,7 +49,7 @@ The choice of Digital Ocean as a cloud provider was mainly based on recommendati
 The following diagram describes the Process Development Landscape:
 \begin{figure}[!h]
     \centering
-    \includegraphics[width=\textwidth]{report/images/process.png}
+    \includegraphics[width=\textwidth]{images/process.png}
     \caption{Process' Landscape}
     \label{fig:process-overview}
 \end{figure}
@@ -69,7 +73,7 @@ With this Prometheus and Grafana stack, we collect real-time information about M
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.75\linewidth]{report/images/grafana.png}
+    \includegraphics[width=0.75\linewidth]{images/grafana.png}
     \caption{Grafana}
     \label{fig:grafana}
 \end{figure}
@@ -89,6 +93,8 @@ Logs collected by Filebeat are sent to Elasticsearch, where they are indexed and
 
 
 \subsection{Brief results of the security assessment and brief description of how did you harden the security of your system based on the analysis}
+
+
 \subsection{Applied strategy for scaling and upgrades}
 Docker swarm with terraform
 \subsection{Role of AI in the development process}
@@ -98,12 +104,42 @@ Docker swarm with terraform
 2) Identify threat sources (e.g. SQL injection) \\
 3) Construct risk scenarios (e.g. Attacker performs SQL injection on web application to download sensitive user data
 
-\subsection{Risk Analysis}
-1) Determine likelihood \\
-2) Determine immpact \\
-3) Use a Risk Matrix to prioritize risk of scenarios \\
-4) Discuss what are you going to about each of the scenarios.  
 
+\section{Risk Assessment}
+
+\subsection{Risk Identification and Analysis}
+ On the next page is a table summarising risk assesments. We prioritize the risks based on their combined likelihood and impact. We also include the mitigation strategies in the table to make it easier to get an overview. The table is in ranked order, from highest priority to lowest. The highest priority risks are those with high likelihood and high impact, such as SQL Injection Attacks, Data Breaches, and Software Vulnerability Exploits.We base our findings on Sonarcloud's produced rapport on our application as well as researched security threats and mitigation s
+ 
+We use these definitions: \\
+
+Likelihood: {Certain, Likely, Possible, Unlikely, Rare}\\
+
+Impact: {Insignificant, Negligible, Marginal, Critical, Catastrophic}\\
+
+\begin{table}[H]
+    \centering
+    \caption{Risk Assessment}
+    \begin{tabular}{|p{3cm}|p{2cm}|p{2cm}|p{6cm}|}
+        \hline
+        \textbf{Risk} & \textbf{Likelihood} & \textbf{Impact} & \textbf{Mitigation Strategy} \\
+        \hline
+        SQL Injection Attack & Likely & catastrhopic & We use the ORM feature; Sequelize to avoid raw queries. We should regularly update dependencie. With our monitoring we should try to review the database logs and performance metrics for any suspicious access patterns and unusual spikes \\
+        \hline
+        Data Breach & Possible & Catastrophic & We encrypt sensitive data like passwords and use HTTPS.We also follow REST API prnincples. Generally we shoud strive to enforce strong authentication and authorization practices. We should also consider implementing security monitoring tools to detect and respond to breaches in close to real-time \\
+        \hline
+        DDoS Attack & Possible & Critical &  We scale using Docker Swarm to try to distribute the system load. Again here, montitoring for suspicous patterns and the like is something we should include in our strategy. We can for instance set up alerts for sudden increases in traffic \\
+        \hline
+        Data Loss & Unlikely & Catastrophic & There are backups with the PostgreSQL database. There is also  redundancy in Digital Ocean droplets. Looking ahead we could  implement disaster recovery plans \\
+        \hline
+        Software Vulnerability Exploits & Likely & Critical & ll First of all we should make sure that software components are regularly updated. Dedicated vulnerability / security scans as CI GitHub Actions should also be considered. Altough current like Sonarcloud do uncover som vulnerabilites  \\
+        \hline
+        Resource Exhaustion (CPU/Memory) & Rare & Critical & We monitor system performance with Prometheus. We also scale resources using Docker Swarm which should help optimize the application for performance \\
+        \hline
+        Unauthorized Access & Unlikely & Marginal & We try to have a  strong password policy. Ideally we could implement multi-factor authentication. Monitoring is also relevant here.  \\
+        \hline
+    \end{tabular}
+    \label{tab:risk-assessment}
+\end{table}
 
 \section{Lessons Learned Perspective}
 The biggest lessons learned relate to the overall structuring and development of a larger collaborative project. While we attained significant hands-on experience with new tools and technologies, we found more value in learning to work together in a team with widely varied skill sets and backgrounds. When someone initially developed features early in the project, we would spend great time knowledge sharing and ensuring everyone understood, what was going on. However, as we got further into the project, less knowledge was shared, while no documentation was written, leading to a decrease in productivity, as it became an increasingly daunting task to develop on the evergrowing complex system. This issue influenced the teams productivity both in terms of maintenance and evolution, since it was hard to work on elements without any knowledge. This is reflected in many of our GitHub Issues being left open for months at a time, preventing an agile workflow. One example of this is seen in the issue \href{https://github.com/group-o-minitwit-2024/MiniTwit/issues/37}{\textit{"Race condition with regards to database initialization and app execution in compose \#37"}}. This maintenance task was left open for approximately 2 months, despite its relative simplicity. The biggest factor as to why this was not solved sooner is the lack of knowledge sharing, which turned a simple maintenance task into a whole self study on the infrastructure and networking of the app. This is just one example, but has been a problem all throughout the project. \\
@@ -144,7 +180,7 @@ Lastly, write about the fear of fucking up hindering development!!! Use example 
 \section{Appendix}
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{report/images/sql_injections.png}
+    \includegraphics[width=0.8\textwidth]{images/sql_injections.png}
     \caption{Caption}
     \label{fig:sqlinjections}
 \end{figure}
