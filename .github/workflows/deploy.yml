@@ -9,8 +9,6 @@ on:
       - 'utils/**'
       - 'terraform/**'
       - 'compose/**'
-  pull_request:
-    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
