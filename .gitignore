@@ -11,6 +11,9 @@ secrets/
 terraform.tfstate*
 terraform/temp/
 
+# ignore load balancer config
+load_balancer.conf
+
 # ignore /utils folder in app and API
 app/*/utils/
 API/*/utils/
