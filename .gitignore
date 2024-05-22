@@ -30,3 +30,6 @@ db_ip.txt
 # certificate & connectionstring
 utils/ca-certificate.crt
 utils/db_connectionstring.json
+
+# EFK ignores
+.htpasswd
