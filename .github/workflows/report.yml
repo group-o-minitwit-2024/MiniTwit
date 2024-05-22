@@ -3,6 +3,7 @@ on:
     paths:
       - 'report/**'
   
+  workflow_dispatch:
   
 name: Report
   
@@ -26,14 +27,14 @@ jobs:
         - name: Move PDF to build directory
           run: |
               mkdir -p report/build
-              mv main.pdf report/build/
+              mv main.pdf report/build/MSc_group_o.pdf
         
         - name: Commit and push generated PDF
           run: |
             git config --global user.name 'github-actions[bot]'
             git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-            git add report/build/main.pdf
-            git commit -m 'Add generated main.pdf'
+            git add report/build/MSc_group_o.pdf
+            git commit -m 'Add generated MSc_group_o.pdf'
             git push
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -42,4 +43,4 @@ jobs:
           uses: actions/upload-artifact@v3
           with: 
             name: PDF
-            path: report/build/main.pdf
+            path: report/build/MSc_group_o.pdf
