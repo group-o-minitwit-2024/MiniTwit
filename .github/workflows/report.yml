@@ -2,6 +2,8 @@ on:
   push:
     paths:
       - 'report/**'
+    paths-ignore:
+      - 'report/build/**'
   workflow_dispatch:
 
 name: Report
