@@ -1,8 +1,7 @@
 on:
-    push:
-      branches:
-        - report_changes
-    workflow_dispatch:
+  push:
+    paths:
+      - 'report/**'
   
   
 name: Report
