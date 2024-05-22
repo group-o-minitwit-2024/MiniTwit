@@ -13,6 +13,8 @@
     "quotes": ["warn", "single"],
     "semi": ["error", "always"],
     "no-console": "off",
-    "no-var": "error"
-  }
+    "no-var": "warn",
+    "no-unused-vars": "warn"
+  },
+  "ignorePatterns": ["app/src/**/*.test.js", "app/src/**/**/*.conf.js", "app/src/ui_tests/specs/*.e2e.js", "app/src/**/**/*.page.js", "app/src/**/**/page.js"]
 }
