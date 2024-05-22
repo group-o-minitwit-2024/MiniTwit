@@ -88,33 +88,43 @@ app.get('/', async (req, res) => {
       return res.redirect('/public');
     }
 
-    // ey hvor fakkin lekker SEQUILIZE ER huh så nemt at forstå, ficking lort  
+    const followers = await Follower.findAll({
+      where: {
+        who_id: req.session.user.user_id
+      },
+      raw: true
+    });
+    
+    const followerList = followers.map(x => x.whom_id).concat(req.session.user.user_id);
+    
     const messages = await Message.findAll({
-      attributes: [
-        'message_id',
-        'author_id',
-        'text',
-        'pub_date',
-        [Sequelize.literal('"Account"."user_id"'), 'user_id'],
-        [Sequelize.literal('"Account"."username"'), 'username'],
-        [Sequelize.literal('"Account"."email"'), 'email']
-      ],
-      include: [{
-        model: Account,
-        attributes: [], // Don't fetch any additional attributes from the Account model
-        where: {
-          user_id: {
-            [Sequelize.Op.or]: [req.session.user.user_id,
-              Sequelize.literal(`"user_id" IN (SELECT "whom_id" FROM "follower" WHERE "who_id" = ${req.session.user.user_id})`)
-            ]
-          }
-        }
-      }],
+      where: {
+        author_id: followerList
+      },
       order: [['message_id', 'DESC']],
       limit: PER_PAGE,
       raw: true
     });
-        
+
+    // Add user_id, username, and email to each message
+    const accounts = await Account.findAll({
+      attributes: ['user_id', 'username', 'email'],
+      where: {
+        user_id: followerList
+      },
+      raw: true
+    });
+
+    const accountMap = accounts.reduce((acc, account) => {
+      acc[account.user_id] = account;
+      return acc;
+    }, {});
+
+    messages.forEach(msg => {
+      msg.user_id = accountMap[msg.author_id].user_id;
+      msg.username = accountMap[msg.author_id].username;
+      msg.email = accountMap[msg.author_id].email;
+    });
     
     res.render('timeline.ejs', { user: req.session.user, messages, title: "My Timeline", flashes: req.flash('success'), endpoint: "user_timline" });
   } catch (error) {
