@@ -18,7 +18,7 @@
         <a href="/login">sign in</a>
       <% } %>
     </div>
-    <% if (flashes.length > 0) { %>
+    <% if (flashes && flashes.length > 0) { %>
     <ul class="flashes">
         <% flashes.forEach(function(message) { %>
         <li><%= message %></li>
