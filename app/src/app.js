@@ -34,7 +34,10 @@ app.set('view engine', 'ejs');
 app.use(session({
   secret: SECRET_KEY,
   resave: false,
-  saveUninitialized: true
+  saveUninitialized: true,
+  cookie: {
+    expires: new Date(Date.now() + 2 * 60 * 60 * 1000) // 2 hours from now
+  }
 }));
 
 // Setup
