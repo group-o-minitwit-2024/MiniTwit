@@ -1,0 +1,3 @@
+[submodule "monitoring"]
+	path = monitoring
+	url = https://github.com/group-o-minitwit-2024/MiniTwit-monitoring
